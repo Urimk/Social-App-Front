@@ -1,0 +1,24 @@
+@import "tailwindcss";
+
+@theme {
+  --font-poppins: "Poppins", sans-serif;
+}
+
+@custom-variant dark (haxors-never-match);
+
+:root {
+  --container-dark: #1c1c1e;
+  --text-color: #707070;
+  --dark-text: #d0d0d0;
+  --field-bg: #eeeeee;
+  --dark-field: #555555;
+
+  --checkbox-color: #0495ff;
+  --dark-checkbox: #5bb8fb;
+  --checkbox-size: 12px;
+
+  --grad-start: #0495ff;
+  --dark-gstart: #1f7dc2;
+  --grad-end: #a333fa;
+  --dark-gend: #632b8f;
+}

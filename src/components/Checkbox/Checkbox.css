@@ -1,0 +1,85 @@
+.checkbox-wrapper {
+  position: relative;
+}
+
+.checkbox-wrapper *,
+.checkbox-wrapper *:before,
+.checkbox-wrapper *:after {
+  box-sizing: border-box;
+}
+
+.promoted-input-checkbox {
+  border: 0;
+  clip: rect(0 0 0 0);
+  height: 1px;
+  margin: -1px;
+  overflow: hidden;
+  padding: 0;
+  position: absolute;
+  width: 1px;
+}
+
+.checkbox-wrapper input:checked ~ svg {
+  height: calc(var(--size) * 0.75);
+  animation: draw-checkbox ease-in-out 0.2s forwards;
+}
+
+.checkbox-wrapper label:active::after {
+  background-color: #e6e6e6;
+}
+
+.checkbox-wrapper label {
+  color: currentColor;
+  line-height: var(--size);
+  cursor: pointer;
+  position: relative;
+}
+
+.checkbox-wrapper label:after {
+  content: "";
+  height: var(--size);
+  width: var(--size);
+  margin-right: 6px;
+  float: left;
+  border: 2px solid currentColor;
+  border-radius: 4px;
+  transition: 0.15s all ease-out;
+}
+
+.checkbox-wrapper svg {
+  pointer-events: none;
+  stroke: currentColor;
+  stroke-width: 4px;
+  height: 0;
+  width: calc(var(--size) * 1);
+  position: absolute;
+  left: calc(var(--size) * 0.12);
+  top: calc(var(--size) * 0);
+  stroke-dasharray: 33;
+}
+
+.checkbox-wrapper .checkmark-outline {
+  stroke: var(--bg-color);
+  stroke-width: 8px;
+  z-index: 1;
+}
+
+.checkbox-wrapper .checkmark-front {
+  stroke: currentColor;
+  stroke-width: 4px;
+  z-index: 2;
+}
+
+.checkbox-wrapper input:checked ~ svg {
+  height: calc(var(--size) * 0.75);
+  animation: draw-checkbox ease-in-out 0.2s forwards;
+}
+
+@keyframes draw-checkbox {
+  0% {
+    stroke-dashoffset: 33;
+  }
+  100% {
+    stroke-dashoffset: 0;
+  }
+}
