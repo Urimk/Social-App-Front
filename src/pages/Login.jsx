@@ -17,12 +17,12 @@ const Login = () => {
                   <input
                     type="text"
                     placeholder="Username"
-                    className="w-full py-[4%] sm:py-[2%] px-[4%] text-[6cpw] sm:text-[4.1cqw] font-poppins placeholder-(--text-color) dark:placeholder-(--dark-text) bg-(--field-bg) dark:bg-(--dark-field) rounded-lg focus:outline-none focus:ring-2 focus:ring-[var(--checkbox-color)] focus:dark:ring-[var(--dark-checkbox)] transition-all duration-200 ease-in-out"
+                    className="w-full py-[4%] sm:py-[2%] px-[4%] text-[6cpw] sm:text-[4.1cqw] font-poppins placeholder-(--text-color) dark:placeholder-(--dark-text) dark:text-white bg-(--field-bg) dark:bg-(--dark-field) rounded-lg focus:outline-none focus:ring-2 focus:ring-[var(--checkbox-color)] focus:dark:ring-[var(--dark-checkbox)] transition-all duration-200 ease-in-out"
                   />
                   <input
                     type="password"
                     placeholder="Password"
-                    className="w-full py-[4%] sm:py-[2%] px-[4%] text-[6cpw] sm:text-[4.1cqw] mt-[5%] sm:mt-[4%] font-poppins placeholder-(--text-color) dark:placeholder-(--dark-text) bg-(--field-bg) dark:bg-(--dark-field) rounded-lg focus:outline-none focus:ring-2 focus:ring-[var(--checkbox-color)] focus:dark:ring-[var(--dark-checkbox)] transition-all duration-200 ease-in-out"
+                    className="w-full py-[4%] sm:py-[2%] px-[4%] text-[6cpw] sm:text-[4.1cqw] mt-[5%] sm:mt-[4%] font-poppins placeholder-(--text-color) dark:placeholder-(--dark-text) dark:text-white bg-(--field-bg) dark:bg-(--dark-field) rounded-lg focus:outline-none focus:ring-2 focus:ring-[var(--checkbox-color)] focus:dark:ring-[var(--dark-checkbox)] transition-all duration-200 ease-in-out"
                   />
                   <div className="options mt-[4%] flex justify-between text-[3.8cqw]  font-poppins">
                     <Checkbox />
