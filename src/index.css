@@ -7,6 +7,8 @@
 @custom-variant dark (haxors-never-match);
 
 :root {
+  --lg-mult: 0.533;
+
   --container-dark: #1c1c1e;
   --text-color: #707070;
   --dark-text: #d0d0d0;
