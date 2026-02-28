@@ -27,3 +27,50 @@
   --err-color: #ff6a68;
   --online-color: #12cf13;
 }
+
+/* Custom lgiplier utilities */
+@utility w-lg-* {
+  width: calc(--value([*]) * var(--lg-mult));
+}
+@utility h-lg-* {
+  height: calc(--value([*]) * var(--lg-mult));
+}
+@utility mt-lg-* {
+  margin-top: calc(--value([*]) * var(--lg-mult));
+}
+@utility mb-lg-* {
+  margin-bottom: calc(--value([*]) * var(--lg-mult));
+}
+@utility ml-lg-* {
+  margin-left: calc(--value([*]) * var(--lg-mult));
+}
+@utility px-lg-* {
+  padding-left: calc(--value([*]) * var(--lg-mult));
+  padding-right: calc(--value([*]) * var(--lg-mult));
+}
+@utility py-lg-* {
+  padding-top: calc(--value([*]) * var(--lg-mult));
+  padding-bottom: calc(--value([*]) * var(--lg-mult));
+}
+@utility pl-lg-* {
+  padding-left: calc(--value([*]) * var(--lg-mult));
+}
+@utility pt-lg-* {
+  padding-top: calc(--value([*]) * var(--lg-mult));
+}
+@utility pr-lg-* {
+  padding-right: calc(--value([*]) * var(--lg-mult));
+}
+@utility text-lg-* {
+  font-size: calc(--value([*]) * var(--lg-mult));
+}
+@utility bottom-lg-* {
+  bottom: calc(--value([*]) * var(--lg-mult));
+}
+@utility left-lg-* {
+  left: calc(--value([*]) * var(--lg-mult));
+}
+
+.auto-padding-scrollbar.simplebar-scrollable-y .simplebar-content {
+  padding-right: 16px !important;
+}
