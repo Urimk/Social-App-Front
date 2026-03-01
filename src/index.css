@@ -7,7 +7,7 @@
 @custom-variant dark (haxors-never-match);
 
 :root {
-  --lg-mult: 0.533;
+  --lg-mult: 0.8;
 
   --container-dark: #1c1c1e;
   --text-color: #707070;
@@ -22,6 +22,7 @@
   --grad-start: #0495ff;
   --dark-gstart: #1f7dc2;
   --grad-end: #a333fa;
+  --grad-end2: #7646fe;
   --dark-gend: #632b8f;
 
   --err-color: #ff6a68;
@@ -44,6 +45,9 @@
 @utility ml-lg-* {
   margin-left: calc(--value([*]) * var(--lg-mult));
 }
+@utility mr-lg-* {
+  margin-right: calc(--value([*]) * var(--lg-mult));
+}
 @utility px-lg-* {
   padding-left: calc(--value([*]) * var(--lg-mult));
   padding-right: calc(--value([*]) * var(--lg-mult));
@@ -61,6 +65,9 @@
 @utility pr-lg-* {
   padding-right: calc(--value([*]) * var(--lg-mult));
 }
+@utility pb-lg-* {
+  padding-bottom: calc(--value([*]) * var(--lg-mult));
+}
 @utility text-lg-* {
   font-size: calc(--value([*]) * var(--lg-mult));
 }
@@ -69,6 +76,14 @@
 }
 @utility left-lg-* {
   left: calc(--value([*]) * var(--lg-mult));
+}
+
+@utility gap-lg-* {
+  gap: calc(--value([*]) * var(--lg-mult));
+}
+
+@utility min-w-lg-* {
+  min-width: calc(--value([*]) * var(--lg-mult));
 }
 
 .auto-padding-scrollbar.simplebar-scrollable-y .simplebar-content {

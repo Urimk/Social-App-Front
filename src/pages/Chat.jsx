@@ -10,17 +10,18 @@ import {
 } from "../assets/icons";
 import ProfilePic from "../assets/Default_pic.png";
 import ContactList from "../components/ContactList";
+import Conversation from "../components/Conversation";
 
 const Chat = () => {
   return (
     <div>
-      <div className="flex w-full h-screen">
+      <div className="flex w-full h-screen overflow-y-hidden overflow-x-auto">
         <div className="flex flex-col justify-between  h-full bg-[var(--field-bg)] 2xl:py-[39px] py-lg-[39px] 2xl:px-[22px] px-lg-[22px] items-center">
           <div className="flex flex-col items-center">
             <div className="position relative">
               <img
                 src={ProfilePic}
-                className="2xl:w-[85px] w-lg-[85px] rounded-lg"
+                className="2xl:w-[85px] w-lg-[85px] 2xl:min-w-[85px] min-w-lg-[85px]   rounded-lg"
               ></img>
               <div className="2xl:w-[14px] w-lg-[14px] 2xl:h-[14px] h-lg-[14px] rounded-full 2xl:border-2 lg:border-1 border-white absolute top-[77%] left-[77%] bg-[var(--online-color)]"></div>
             </div>
@@ -50,7 +51,7 @@ const Chat = () => {
               placeholder="Search"
               className="w-full 2xl:mb-[21px] mb-lg-[21px] 2xl:pl-[40px] pl-lg-[40px] 2xl:pr-[15px] pr-lg-[15px] 2xl:py-[8px] py-lg-[8px] 2xl:ml-[15px] ml-lg-[15px] bg-[var(--field-bg)] 2xl:h-[39px] h-lg-[39px] 2xl:mt-[12px] mt-lg-[12px] rounded-2xl focus:outline-none focus:ring-1 focus:ring-[var(--checkbox-color)] focus:dark:ring-[var(--dark-checkbox)] transition-all duration-200 ease-in-out placeholder:text-[var(--text-color)] 2xl:text-[16px] text-lg-[16px] font-poppins"
             ></input>
-            <Search className="absolute 2xl:w-[12.5px] w-lg-[12.5px] 2xl:bottom-[27px] bottom-lg-[16px] 2xl:left-[34px] left-lg-[34px] text-[var(--text-color)] font-thin" />
+            <Search className="absolute 2xl:w-[12.5px] w-lg-[12.5px] 2xl:bottom-[27px] bottom-lg-[24px] 2xl:left-[34px] left-lg-[34px] text-[var(--text-color)] font-thin" />
           </div>
           <div className="flex-1 min-h-0">
             <SimpleBar className="h-full auto-padding-scrollbar">
@@ -67,6 +68,7 @@ const Chat = () => {
             </SimpleBar>
           </div>
         </div>
+        <Conversation />
       </div>
     </div>
   );

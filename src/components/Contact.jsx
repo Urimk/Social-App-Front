@@ -3,7 +3,7 @@ import { Checkmark } from "../assets/icons";
 
 function Contact() {
   return (
-    <div className="2xl:w-[491px] w-lg-[491px] 2xl:h-[115px] h-lg-[115px] 2xl:mt-[1px] lg:mt-[1px] 2xl:py-[16px] py-lg-[16px] 2xl:px-[14.5px] px-lg-[14.5px] flex 2xl:rounded-[18px] rounded-lg bg-[var(--field-bg)]">
+    <div className="2xl:w-[488px] w-lg-[488px] 2xl:h-[115px] h-lg-[115px] mt-[1px] 2xl:py-[16px] py-lg-[16px] 2xl:px-[14.5px] px-lg-[14.5px] flex 2xl:rounded-[18px] rounded-lg bg-[var(--field-bg)]">
       <div className="position relative">
         <img
           src={ProfilePic}
