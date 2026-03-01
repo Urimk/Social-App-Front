@@ -5,7 +5,7 @@ export default function Checkbox({}) {
   const id = useId();
   return (
     <div
-      className="checkbox-wrapper text-[var(--checkbox-color)] dark:text-[var(--dark-checkbox)] [--bg-color:theme(colors.white)] dark:[--bg-color:var(--container-dark)] flex content-center scale-125 sm:scale-none ml-[5%] mt-[2%] sm:ml-[0%] sm:mt-[0%]"
+      className="checkbox-wrapper text-[var(--blue-500)] dark:text-[var(--blue-400)] [--bg-color:theme(colors.white)] dark:[--bg-color:var(--gray-900)] flex content-center scale-125 sm:scale-none ml-[5%] mt-[2%] sm:ml-[0%] sm:mt-[0%]"
       style={{
         "--size": "var(--checkbox-size)",
       }}
@@ -19,7 +19,7 @@ export default function Checkbox({}) {
       </svg>
       <label
         htmlFor={id}
-        className="text-[3.3cqw]  font-poppins text-[var(--text-color)] dark:text-[var(--dark-text)]"
+        className="text-[3.3cqw]  font-poppins text-[var(--gray-500)] dark:text-[var(--gray-300)]"
       >
         Remember me
       </label>

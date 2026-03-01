@@ -4,29 +4,37 @@
   --font-poppins: "Poppins", sans-serif;
 }
 
-@custom-variant dark (haxors-never-match);
+/*@custom-variant dark (haxors-never-match);*/
 
 :root {
   --lg-mult: 0.8;
 
-  --container-dark: #1c1c1e;
-  --text-color: #707070;
-  --dark-text: #d0d0d0;
-  --field-bg: #eeeeee;
-  --dark-field: #555555;
-
-  --checkbox-color: #0495ff;
-  --dark-checkbox: #5bb8fb;
   --checkbox-size: 12px;
 
-  --grad-start: #0495ff;
-  --dark-gstart: #1f7dc2;
-  --grad-end: #a333fa;
-  --grad-end2: #7646fe;
-  --dark-gend: #632b8f;
+  --green-500: #12cf13;
 
-  --err-color: #ff6a68;
-  --online-color: #12cf13;
+  /* Grays */
+  --gray-100: #eeeeee;
+  --gray-300: #d0d0d0;
+  --gray-500: #707070;
+  --gray-600: #555555;
+  --gray-800: #303030;
+  --gray-900: #1c1c1e;
+
+  /* Blues */
+  --blue-400: #5bb8fb;
+  --blue-500: #0495ff;
+  --blue-700: #1f7dc2;
+
+  /* Purples */
+  --purple-500: #a333fa;
+  --purple-600: #7646fe;
+  --purple-800: #632b8f;
+
+  /* Status Colors */
+  --red-500: #ff6a68;
+  --green-500: #12cf13;
+  --green-700: #009f00;
 }
 
 /* Custom lgiplier utilities */
