@@ -3,16 +3,16 @@ import { Checkmark } from "../assets/icons";
 
 function Contact() {
   return (
-    <div className="2xl:w-[488px] w-lg-[488px] 2xl:h-[115px] h-lg-[115px] mt-[1px] 2xl:py-[16px] py-lg-[16px] 2xl:px-[14.5px] px-lg-[14.5px] flex 2xl:rounded-[18px] rounded-lg bg-[var(--gray-100)] dark:bg-[var(--gray-800)]">
+    <div className="2xl:w-[488px] sm:w-lg-[488px] 2xl:h-[115px] h-lg-[115px] mt-[1px] 2xl:py-[16px] py-lg-[16px] 2xl:px-[14.5px] px-lg-[14.5px] flex 2xl:rounded-[18px] rounded-lg bg-[var(--gray-100)] dark:bg-[var(--gray-800)]">
       <div className="position relative">
         <img
           src={ProfilePic}
-          className="2xl:w-[82px] w-lg-[82px] rounded-lg"
+          className="2xl:w-[82px] sm:w-lg-[82px] w-[15vw] sm:max-w-full max-w-[15vw] rounded-lg"
         ></img>
-        <div className="2xl:w-[14px] w-lg-[14px] 2xl:h-[14px] h-lg-[14px] rounded-full 2xl:border-2 lg:border-1 border-white absolute top-[77%] left-[77%] bg-[var(--green-500)] dark:bg-[var(--green-700)]"></div>
+        <div className="2xl:w-[14px] w-lg-[14px] 2xl:h-[14px] h-lg-[14px] rounded-full 2xl:border-2 lg:border-1 border-white absolute sm:top-[77%] sm:left-[77%] top-[74%] left-[74%] bg-[var(--green-500)] dark:bg-[var(--green-700)]"></div>
       </div>
-      <div className="flex flex-col 2xl:mt-[13px] mt-lg-[13px] 2xl:ml-[30px] ml-lg-[30px] 2xl:gap-[4px] gap-lg-[4px]">
-        <div className="flex justify-between 2xl:w-[350px] w-lg-[350px]">
+      <div className="flex flex-col 2xl:mt-[13px] mt-lg-[13px] 2xl:ml-[30px] ml-lg-[30px] 2xl:gap-[4px] sm:gap-lg-[4px] gap-[0.1vh]">
+        <div className="flex justify-between 2xl:w-[350px] sm:w-lg-[350px] w-[63vw]">
           <div className="2xl:text-[20px] text-lg-[20px] text-[var(--gray-500)] dark:text-[var(--gray-300)] font-poppins font-semibold">
             Name
           </div>
@@ -21,7 +21,7 @@ function Contact() {
           </div>
         </div>
         <div className="flex justify-between 2xl:w-[350px]">
-          <div className="2xl:text-[16px] text-lg-[16px] 2xl:ml-[6px] ml-lg-[6px] text-[var(--gray-500)] dark:text-[var(--gray-300)] font-poppins">
+          <div className="2xl:text-[16px] sm:text-lg-[16px] text-[18px] 2xl:ml-[6px] ml-lg-[6px] text-[var(--gray-500)] dark:text-[var(--gray-300)] font-poppins">
             Hey!
           </div>
           <div className="2xl:text-[16px] text-lg-[16px] text-[var(--gray-500)] dark:text-[var(--gray-300)] font-poppins relative">

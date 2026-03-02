@@ -10,8 +10,10 @@ import More from "./More.svg?react";
 import Add from "./Add.svg?react";
 import Emoji from "./Emoji.svg?react";
 import Mic from "./Mic.svg?react";
+import Back from "./Back.svg?react";
 
 export {
+  Back,
   Bell,
   Message,
   Logout,
