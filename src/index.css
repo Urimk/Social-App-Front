@@ -25,6 +25,7 @@
   --blue-400: #5bb8fb;
   --blue-500: #0495ff;
   --blue-700: #1f7dc2;
+  --blue-900: #0084ff73;
 
   /* Purples */
   --purple-500: #a333fa;
@@ -33,6 +34,7 @@
 
   /* Status Colors */
   --red-500: #ff6a68;
+  --red-700: #df4a48;
   --green-500: #12cf13;
   --green-700: #009f00;
 }

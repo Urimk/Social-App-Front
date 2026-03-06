@@ -11,8 +11,10 @@ import Add from "./Add.svg?react";
 import Emoji from "./Emoji.svg?react";
 import Mic from "./Mic.svg?react";
 import Back from "./Back.svg?react";
+import Contact from "./Contact.svg?react";
 
 export {
+  Contact,
   Back,
   Bell,
   Message,

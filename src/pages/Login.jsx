@@ -1,8 +1,49 @@
+import { useState } from "react";
+import { useNavigate } from "react-router-dom";
 import SimpleBar from "simplebar-react";
 import "simplebar-react/dist/simplebar.min.css";
+import toast from "react-hot-toast";
+
 import Checkbox from "../components/Checkbox/Checkbox";
 
 const Login = () => {
+  const navigate = useNavigate();
+
+  const allUsers = JSON.parse(localStorage.getItem("users")) || [];
+
+  const [formData, setFormData] = useState({
+    password: "",
+    display: "",
+  });
+
+  const handleChange = (e) => {
+    setFormData({ ...formData, [e.target.name]: e.target.value });
+  };
+
+  const isFilled = () => {
+    if (formData.password === "" || formData.display === "") return false;
+    return true;
+  };
+
+  const handleSubmit = (e) => {
+    e.preventDefault();
+    if (!isFilled()) {
+      return;
+    }
+    const foundUser = allUsers.find(
+      (user) =>
+        user.username === formData.username &&
+        user.password === formData.password,
+    );
+    if (foundUser) {
+      localStorage.setItem("currentUser", JSON.stringify(foundUser));
+      toast("Signed in successfully");
+      navigate("/chat");
+    } else {
+      toast.error("Wrong username or password", { id: "login-failed" });
+    }
+  };
+
   return (
     <div>
       <div className="min-h-screen  bg-[url('/background1.png')] bg-no-repeat bg-cover bg-center">
@@ -16,12 +57,20 @@ const Login = () => {
                 <form action="" className="mt-[8%] sm:mt-[6.6%] w-full">
                   <input
                     type="text"
-                    placeholder="Username"
+                    onChange={(e) => {
+                      handleChange(e);
+                    }}
+                    placeholder="Display Name"
+                    name="display"
                     className="w-full py-[4%] sm:py-[2%] px-[4%] text-[6cpw] sm:text-[4.1cqw] font-poppins placeholder-(--gray-500) dark:placeholder-(--gray-300) dark:text-white bg-(--gray-100) dark:bg-(--gray-600) rounded-lg focus:outline-none focus:ring-2 focus:ring-[var(--blue-500)] focus:dark:ring-[var(--blue-400)] transition-all duration-200 ease-in-out"
                   />
                   <input
                     type="password"
+                    onChange={(e) => {
+                      handleChange(e);
+                    }}
                     placeholder="Password"
+                    name="password"
                     className="w-full py-[4%] sm:py-[2%] px-[4%] text-[6cpw] sm:text-[4.1cqw] mt-[5%] sm:mt-[4%] font-poppins placeholder-(--gray-500) dark:placeholder-(--gray-300) dark:text-white bg-(--gray-100) dark:bg-(--gray-600) rounded-lg focus:outline-none focus:ring-2 focus:ring-[var(--blue-500)] focus:dark:ring-[var(--blue-400)] transition-all duration-200 ease-in-out"
                   />
                   <div className="options mt-[4%] flex justify-between text-[3.8cqw]  font-poppins">
@@ -32,8 +81,9 @@ const Login = () => {
                   </div>
                   <button
                     type="submit"
-                    className="w-full py-[4%] sm:py-[2%] px-[4%] text-[6cpw] sm:text-[4.1cqw] mt-[12%] sm:mt-[10%] font-poppins placeholder-(--gray-500) dark:placeholder-(--gray-300) bg-(--gray-100) dark:bg-(--gray-600) rounded-lg bg-[linear-gradient(100deg,var(--blue-500),var(--purple-500))]
-                    dark:bg-[linear-gradient(100deg,var(--blue-700),var(--purple-800))] text-white dark:text-[var(--gray-300)] shadow-md cursor-pointer"
+                    onClick={(e) => handleSubmit(e)}
+                    className={`w-full py-[4%] sm:py-[2%] px-[4%] text-[6cpw] sm:text-[4.1cqw] mt-[12%] sm:mt-[10%] font-poppins placeholder-(--gray-500) dark:placeholder-(--gray-300) bg-(--gray-100) dark:bg-(--gray-600) rounded-lg bg-[linear-gradient(100deg,var(--blue-500),var(--purple-500))]
+                    dark:bg-[linear-gradient(100deg,var(--blue-700),var(--purple-800))] text-white dark:text-[var(--gray-300)] shadow-md  transition duration-300 ease-in-out ${isFilled() ? "cursor-pointer" : "grayscale-60"}`}
                   >
                     Sign in
                   </button>
@@ -50,7 +100,12 @@ const Login = () => {
                   <p className="text-[6cpw] sm:text-[4.1cqw] font-poppins text-(--gray-500) dark:text-(--gray-300)">
                     Not Registered?
                   </p>
-                  <a className="text-[var(--blue-500)] dark:text-[var(--blue-400)] text-[6cpw] sm:text-[4.1cqw] font-poppins underline cursor-pointer mt-[3%] sm:mt-[0%]">
+                  <a
+                    onClick={() => {
+                      navigate("/register");
+                    }}
+                    className="text-[var(--blue-500)] dark:text-[var(--blue-400)] text-[6cpw] sm:text-[4.1cqw] font-poppins underline cursor-pointer mt-[3%] sm:mt-[0%]"
+                  >
                     Click here to register
                   </a>
                 </div>

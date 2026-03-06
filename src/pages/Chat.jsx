@@ -11,6 +11,7 @@ import {
 import ProfilePic from "../assets/Default_pic.png";
 import ContactList from "../components/ContactList";
 import Conversation from "../components/Conversation";
+import AddContact from "../components/AddContact";
 
 const Chat = () => {
   return (
@@ -69,6 +70,7 @@ const Chat = () => {
           </div>
         </div>
         <Conversation />
+        <AddContact />
       </div>
     </div>
   );
