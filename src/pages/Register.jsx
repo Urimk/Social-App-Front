@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 
 import SimpleBar from "simplebar-react";
@@ -8,10 +8,10 @@ import toast from "react-hot-toast";
 import ProfilePic from "../assets/Default_pic.png";
 
 const Register = () => {
-  const NAME_CHAR_REGEX = /(\w||-|\.| )*/;
-  const DISPLAY_CHAR_REGEX = /(\w||-|\.|)*/;
+  const NAME_CHAR_REGEX = /(\w|-|\.| )+/;
+  const DISPLAY_CHAR_REGEX = /(\w|-|\.)+/;
   const NAME_SPECIAL_REGEX = /[ ][ ]/;
-  const LETTER_REGEX = /(?=.*[A-Z]+)(?=.*[a-z]+)(?=.*[0-9]+).*/;
+  const LETTER_REGEX = /(?=.*[A-Z]+)(?=.*[a-z]+)(?=.*[0-9]+).+/;
   const DISPLAY_SPECIAL_REGEX = /[-_\.][-_\.]/;
 
   const MAX_NAME_LEN = 20;
@@ -136,7 +136,6 @@ const Register = () => {
       }
 
       if (
-        !NAME_CHAR_REGEX.test(formData.display) ||
         !DISPLAY_CHAR_REGEX.test(formData.display) ||
         DISPLAY_SPECIAL_REGEX.test(formData.display)
       ) {
@@ -167,12 +166,18 @@ const Register = () => {
   };
 
   const handleImage = (e) => {
-    if (e.target.files && e.target.files[0]) {
+    const file = e.target.files[0];
+    const reader = new FileReader();
+
+    reader.onloadend = () => {
       setFormData({
         ...formData,
-        image: URL.createObjectURL(e.target.files[0]),
+        image: reader.result,
       });
-    }
+      console.log(reader.result);
+    };
+
+    if (file) reader.readAsDataURL(file);
   };
 
   const handleSubmit = (e) => {
@@ -287,7 +292,7 @@ const Register = () => {
                       <label className="cursor-pointer" htmlFor="image">
                         <img
                           src={formData.image ? formData.image : ProfilePic}
-                          className="w-[95%] h-[95%] mt-[2.5%] ml-[2.5%] rounded-full"
+                          className="w-[95%] h-[95%] mt-[2.5%] ml-[2.5%] rounded-full object-cover"
                         />
                       </label>
 

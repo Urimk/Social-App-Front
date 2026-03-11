@@ -1,14 +1,61 @@
-import React from "react";
+import React, { useState } from "react";
 import { Contact } from "../assets/icons";
+import toast from "react-hot-toast";
 
-const AddContact = () => {
+const AddContact = ({
+  isWindowOpen,
+  setIsWindowOpen,
+  currentDisplay,
+  friendRequests,
+  setFriendRequests,
+  users,
+}) => {
+  const [contactName, setContactName] = useState("");
+
+  const isFilled = () => {
+    if (contactName === "") return false;
+    return true;
+  };
+
+  const handleSubmit = (e) => {
+    e.preventDefault();
+    if (!isFilled()) return;
+    const foundUser = users.find((user) => user.display === contactName);
+    if (!foundUser) {
+      toast.error("User not found", { id: "addFriend-failed" });
+      return;
+    }
+    if (foundUser.display === currentDisplay) {
+      toast.error("Can't add yourself", { id: "addFriend-failed" });
+      return;
+    }
+    const newRequest = { from: currentDisplay, to: contactName };
+    if (
+      !friendRequests.some(
+        (request) =>
+          request.from === newRequest.from && request.to === newRequest.to,
+      )
+    ) {
+      friendRequests.push(newRequest);
+    }
+    localStorage.setItem("friendRequests", JSON.stringify(friendRequests));
+    toast.success("Friend request sent", { id: "addFriend-success" });
+    setIsWindowOpen(false);
+  };
+
   return (
-    <div className="fixed inset-0  w-screen h-screen bg-[var(--gray-100)]/60 dark:bg-[var(--gray-500)]/60 backdrop-blur-xs flex items-center justify-center">
-      <div className="2xl:w-[587px] sm:w-lg-[587px] w-[70vw]  bg-white dark:bg-[var(--gray-800)] rounded-4xl drop-shadow-[2px_3px_15px_var(--blue-900)] 2xl:py-[51px] sm:py-lg-[51px] py-[45px] 2xl:px-[48px] sm:px-lg-[48px] px-[35px] flex flex-col">
+    <div
+      onClick={() => setIsWindowOpen(false)}
+      className={`${isWindowOpen ? "" : "hidden"} fixed inset-0  w-screen h-screen bg-[var(--gray-100)]/60 dark:bg-[var(--gray-500)]/60 backdrop-blur-xs flex items-center justify-center`}
+    >
+      <div
+        onClick={(e) => e.stopPropagation()}
+        className="2xl:w-[587px] sm:w-lg-[587px] w-[70vw]  bg-white dark:bg-[var(--gray-800)] rounded-4xl drop-shadow-[2px_3px_15px_var(--blue-900)] 2xl:py-[51px] sm:py-lg-[51px] py-[45px] 2xl:px-[48px] sm:px-lg-[48px] px-[35px] flex flex-col"
+      >
         <div className="2xl:text-[22px] self-center sm:self-auto sm:text-lg-[22px] text-[20px] font-poppins text-[var(--gray-500)] dark:text-[var(--gray-300)] font-semibold">
           Add a new contact
         </div>
-        <form>
+        <form onSubmit={handleSubmit}>
           <div className="2xl:mt-[50px] sm:mt-lg-[50px] mt-[30px] flex flex-col sm:flex-row 2xl:gap-[13px] sm:gap-lg-[13px] gap-[10px] items-center">
             <Contact className="2xl:w-[17px] sm:w-lg-[17px] hidden sm:flex" />
             <label
@@ -21,18 +68,22 @@ const AddContact = () => {
             <input
               name="username"
               id="username"
+              onChange={(e) => setContactName(e.target.value)}
               className="sm:w-full w-[90%] 2xl:px-[10px] sm:px-lg-[10px] px-[8px] 2xl:text-[20px] sm:text-lg-[20px] text-[16px]  font-poppins  dark:text-white bg-(--gray-100) dark:bg-(--gray-600) rounded-xl focus:outline-none focus:ring-2 focus:ring-[var(--blue-500)] focus:dark:ring-[var(--blue-400)] transition-all duration-200 ease-in-out py-[6px] sm:py-0"
             ></input>
           </div>
           <div className="flex flex-col-reverse sm:flex-row 2xl:gap-[13px] sm:gap-lg-[13px] gap-[14px]">
             <button
-              className={` 2xl:text-[20px] sm:text-lg-[20px] text-[16px] 2xl:mt-[50px] sm:mt-lg-[50px] 2xl:px-[50px] sm:px-lg-[50px] 2xl:py-[12px] sm:py-lg-[12px] py-[8px]  font-poppins  rounded-lg bg-white dark:bg-(--gray-600) text-[var(--red-500)] border-2 border-[var(--red-500)] font-semibold  shadow-md transition duration-300 ease-in-out cursor-pointer `}
+              type="button"
+              onClick={() => setIsWindowOpen(false)}
+              className={` 2xl:text-[20px] sm:text-lg-[20px] text-[16px] 2xl:mt-[50px] sm:mt-lg-[50px] 2xl:px-[50px] sm:px-lg-[50px] 2xl:py-[12px] sm:py-lg-[12px] py-[8px]  font-poppins  rounded-lg bg-white dark:bg-(--gray-600) text-[var(--red-500)] border-2 border-[var(--red-500)] font-semibold  shadow-md transition duration-300 ease-in-out cursor-pointer`}
             >
               Cancel
             </button>
             <button
+              onClick={(e) => handleSubmit(e)}
               type="submit"
-              className={`flex-1 2xl:text-[20px] sm:text-lg-[20px] text-[16px] 2xl:mt-[50px] sm:mt-lg-[50px] mt-[35px] 2xl:px-[130px] sm:px-lg-[130px] 2xl:py-[12px] sm:py-lg-[12px] py-[8px]  font-poppins  rounded-lg bg-[linear-gradient(100deg,var(--blue-500),var(--purple-800))] text-white dark:text-[var(--gray-300)] font-semibold   shadow-md transition duration-300 ease-in-out cursor-pointer`}
+              className={`flex-1 2xl:text-[20px] sm:text-lg-[20px] text-[16px] 2xl:mt-[50px] sm:mt-lg-[50px] mt-[35px] 2xl:px-[130px] sm:px-lg-[130px] 2xl:py-[12px] sm:py-lg-[12px] py-[8px]  font-poppins  rounded-lg bg-[linear-gradient(100deg,var(--blue-500),var(--purple-800))] text-white dark:text-[var(--gray-300)] font-semibold   shadow-md transition duration-300 ease-in-out cursor-pointer ${isFilled() ? "cursor-pointer" : "grayscale-60"}`}
             >
               Save
             </button>

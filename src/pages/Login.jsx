@@ -32,12 +32,12 @@ const Login = () => {
     }
     const foundUser = allUsers.find(
       (user) =>
-        user.username === formData.username &&
+        user.display === formData.display &&
         user.password === formData.password,
     );
     if (foundUser) {
       localStorage.setItem("currentUser", JSON.stringify(foundUser));
-      toast("Signed in successfully");
+      toast.success("Signed in successfully");
       navigate("/chat");
     } else {
       toast.error("Wrong username or password", { id: "login-failed" });
