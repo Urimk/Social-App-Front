@@ -8,59 +8,137 @@ import {
   Settings,
   Search,
 } from "../assets/icons";
-import ProfilePic from "../assets/Default_pic.png";
+import DefaultPic from "../assets/Default_pic.png";
 import ContactList from "../components/ContactList";
 import Conversation from "../components/Conversation";
 import AddContact from "../components/AddContact";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import RequestsList from "../components/RequestsList";
 
 const Chat = () => {
+  const API_URL =
+    import.meta.env.VITE_RENDER_API_URL || "http://localhost:5000";
   const navigate = useNavigate();
 
+
+  const [profilePic, setDefaultPic] = useState("");
   const [isWindowOpen, setIsWindowOpen] = useState(false);
-  const [currentUser, setCurrentUser] = useState(
-    JSON.parse(localStorage.getItem("currentUser")) || [],
-  );
-  const [friends, setFriends] = useState(
-    JSON.parse(localStorage.getItem("friends")) || [],
-  );
-  const [friendRequests, setFriendRequests] = useState(
-    JSON.parse(localStorage.getItem("friendRequests")) || [],
-  );
-  const [users, setUsers] = useState(
-    JSON.parse(localStorage.getItem("users")) || [],
-  );
-  const [selected, setSelected] = useState("");
+  const [chats, setChats] = useState("Loading");
+  const [friendRequests, setFriendRequests] = useState("Loading");
+  const [newLastMessage, setNewLastMessage] = useState({});
+  const [isAuth, setIsAuth] = useState(false);
+
+  const fetchDefaultPic = async () => {
+    const token = localStorage.getItem("token");
+    const response = await fetch(`${API_URL}/image`, {
+      method: "GET",
+      headers: {
+        "Content-Type": "application/json",
+        authorization: `Bearer ${token}`,
+      },
+    });
+    if (!response.ok) {
+      const res = await response.json();
+      throw new Error(res.message);
+    }
+    const res = await response.json();
+    if (res.image) {
+      setDefaultPic(res.image);
+    }
+    return res;
+  };
+
+  const fetchRequests = async () => {
+    const token = localStorage.getItem("token");
+    const response = await fetch(`${API_URL}/users/requests`, {
+      method: "GET",
+      headers: {
+        "Content-Type": "application/json",
+        authorization: `Bearer ${token}`,
+      },
+    });
+    if (!response.ok) {
+      const res = await response.json();
+      throw new Error(res.message);
+    }
+    const res = await response.json();
+    if (res.requests) {
+      setFriendRequests(res.requests);
+    }
+    return res;
+  };
+
+  const fetchChats = async () => {
+    const token = localStorage.getItem("token");
+    const response = await fetch(`${API_URL}/chat/`, {
+      method: "GET",
+      headers: {
+        "Content-Type": "application/json",
+        authorization: `Bearer ${token}`,
+      },
+    });
+    if (!response.ok) {
+      const res = await response.json();
+      throw new Error(res.message);
+    }
+    const res = await response.json();
+    if (res.chats) {
+      setChats(res.chats);
+    }
+    return res;
+  };
+
+  useEffect(() => {
+    const checkAuth = async () => {
+      try {
+        const token = localStorage.getItem("token");
+        await fetch("/auth/check", {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        });
+        setIsAuth(true);
+      } catch (error) {
+        setIsAuth(false);
+        console.log(error);
+        navigate("/login");
+      }
+    };
+
+    checkAuth();
+    fetchDefaultPic();
+    fetchRequests();
+    fetchChats();
+  }, []);
+
   const [curChat, setCurChat] = useState({});
+  const [contactDisplay, setContactDisplay] = useState("");
+  const [contactImage, setContactImage] = useState("");
 
   const handleLogout = () => {
-    localStorage.removeItem("currentUser");
     navigate("/login");
+    localStorage.removeItem("token");
+    localStorage.removeItem("user");
   };
 
-  const handleChatSelect = (display) => {
-    setSelected(display);
-    setCurChat(
-      friends.find(
-        (friendship) =>
-          (friendship.usr1 === currentUser.display &&
-            friendship.usr2 === display) ||
-          (friendship.usr1 === display &&
-            friendship.usr2 === currentUser.display),
-      ),
-    );
+  const handleChatSelect = async (id, contactDisplay, contactImage) => {
+    setCurChat(id);
+    setContactDisplay(contactDisplay);
+    setContactImage(contactImage);
   };
-  return (
+
+  return isAuth ? (
     <div>
       <div className="flex flex-col sm:flex-row w-full h-screen min-h-0  overflow-y-hidden overflow-x-auto dark:bg-[var(--gray-900)]">
-        <div className="flex flex-row sm:flex-col justify-center gap-[25vw] sm:gap-0 sm:justify-between h-[75px] sm:h-full bg-[var(--gray-100)] dark:bg-[var(--gray-800)] 2xl:py-[39px] py-lg-[39px] 2xl:px-[22px] px-lg-[22px] items-center sm:flex">
+        <div
+          className={`flex flex-row sm:flex-col justify-center gap-[25vw] sm:gap-0 sm:justify-between h-[75px] sm:h-full bg-[var(--gray-100)] dark:bg-[var(--gray-800)] 2xl:py-[39px] py-lg-[39px] 2xl:px-[22px] px-lg-[22px] items-center sm:flex ${Object.keys(curChat).length !== 0 ? "hidden sm:flex" : ""}`}
+        >
           <div className="flex sm:flex-col items-center gap-[10vw] sm:gap-0">
             <div className="position relative hidden sm:flex">
               <img
-                src={currentUser?.image || ProfilePic}
-                className="2xl:w-[85px] w-lg-[85px] 2xl:min-w-[85px] min-w-lg-[85px] rounded-full"
+                src={profilePic || DefaultPic}
+                className="2xl:w-[85px] w-lg-[85px] 2xl:h-[85px] h-lg-[85px] 2xl:min-w-[85px] min-w-lg-[85px] rounded-full object-cover"
               ></img>
               <div className="2xl:w-[14px] w-lg-[14px] 2xl:h-[14px] h-lg-[14px] rounded-full 2xl:border-2 lg:border-1 border-white absolute top-[77%] left-[77%] bg-[var(--green-500)] dark:bg-[var(--green-700)]"></div>
             </div>
@@ -77,7 +155,9 @@ const Chat = () => {
             className="2xl:mb-[41px] sm:mb-lg-[41px] 2xl:w-[25.5px] w-lg-[25.5px] 2xl:h-[23px] h-lg-[23px] dark:brightness-200 cursor-pointer"
           />
         </div>
-        <div className="flex flex-col 2xl:w-[537px] sm:w-lg-[537px] w-screen min-h-0 bg-white dark:bg-[var(--gray-900)] 2xl:px-[22px] px-[5vw] sm:px-lg-[22px] 2xl:pt-[39px] pt-lg-[39px] sm:border-r-3 border-[var(--gray-100)] sm:flex ">
+        <div
+          className={`flex flex-col 2xl:w-[537px] sm:w-lg-[537px] w-screen min-h-0 bg-white dark:bg-[var(--gray-900)] 2xl:px-[22px] px-[5vw] sm:px-lg-[22px] 2xl:pt-[39px] pt-lg-[39px] sm:border-r-3 border-[var(--gray-100)] sm:flex ${Object.keys(curChat).length !== 0 ? "hidden sm:flex" : ""}`}
+        >
           <div className="flex 2xl:ml-[15px] sm:ml-lg-[15px] 2xl:mb-[5px] mb-lg-[5px] font-poppins text-[var(--gray-500)] dark:text-[var(--gray-300)] 2xl:text-[22px] sm:text-lg-[22px] text-[26px] font-semibold items-center justify-between">
             <div>
               Messages &nbsp;{" "}
@@ -103,11 +183,10 @@ const Chat = () => {
           <div className="flex-1 min-h-0">
             <SimpleBar className="h-full auto-padding-scrollbar">
               <RequestsList
-                friends={friends}
-                setFriends={setFriends}
                 friendRequests={friendRequests}
                 setFriendRequests={setFriendRequests}
-                display={currentUser.display}
+                friends={chats}
+                setFriends={setChats}
               />
               <div className="hidden">
                 <div className="flex 2xl:ml-[8px] ml-lg-[8px] font-poppins text-[var(--gray-500)] dark:text-[var(--gray-300)] 2xl:text-[16px] sm:text-lg-[16px] sm:mb-lg-[5px] mb-[3px] text-[18px] items-center justify-between">
@@ -115,22 +194,10 @@ const Chat = () => {
                   <div className="font-semibold">...</div>
                 </div>
                 <ContactList
-                  users={friends
-                    .filter(
-                      (friendship) =>
-                        friendship.usr1 === currentUser.display ||
-                        friendship.usr2 === currentUser.display,
-                    )
-                    .map((friendship) =>
-                      friendship.usr1 === currentUser.display
-                        ? friendship.usr2
-                        : friendship.usr1,
-                    )
-                    .map((display) =>
-                      users.find((user) => user.display === display),
-                    )}
-                  selected={selected}
+                  users={chats}
+                  curChat={curChat}
                   handleChatSelect={handleChatSelect}
+                  newLastMessage={newLastMessage}
                 />
               </div>
               <div className="flex 2xl:mt-[21px] mt-lg-[21px] 2xl:mb-[5px] sm:mb-lg-[5px] mb-[3px] 2xl:ml-[8px] ml-lg-[8px] font-poppins text-[var(--gray-500)] dark:text-[var(--gray-300)] 2xl:text-[16px] sm:text-lg-[16px] text-[18px] items-center justify-between">
@@ -138,41 +205,29 @@ const Chat = () => {
                 <div className="font-semibold">...</div>
               </div>
               <ContactList
-                users={friends
-                  .filter(
-                    (friendship) =>
-                      friendship.usr1 === currentUser.display ||
-                      friendship.usr2 === currentUser.display,
-                  )
-                  .map((friendship) =>
-                    friendship.usr1 === currentUser.display
-                      ? friendship.usr2
-                      : friendship.usr1,
-                  )
-                  .map((display) =>
-                    users.find((user) => user.display === display),
-                  )}
-                selected={selected}
+                users={chats}
+                curChat={curChat}
                 handleChatSelect={handleChatSelect}
+                newLastMessage={newLastMessage}
               />
             </SimpleBar>
           </div>
         </div>
         <Conversation
-          contact={users.find((user) => user.display === selected)}
           chat={curChat}
           setChat={setCurChat}
+          contactDisplay={contactDisplay}
+          contactImage={contactImage}
+          setNewLastMessage={setNewLastMessage}
         />
         <AddContact
           isWindowOpen={isWindowOpen}
           setIsWindowOpen={setIsWindowOpen}
-          currentDisplay={currentUser.display}
-          friendRequests={friendRequests}
-          setFriendRequests={setFriendRequests}
-          users={users}
         />
       </div>
     </div>
+  ) : (
+    <></>
   );
 };
 export default Chat;

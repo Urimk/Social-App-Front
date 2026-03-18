@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 
 import SimpleBar from "simplebar-react";
@@ -8,6 +8,9 @@ import toast from "react-hot-toast";
 import ProfilePic from "../assets/Default_pic.png";
 
 const Register = () => {
+  const API_URL =
+    import.meta.env.VITE_RENDER_API_URL || "http://localhost:5000";
+
   const NAME_CHAR_REGEX = /(\w|-|\.| )+/;
   const DISPLAY_CHAR_REGEX = /(\w|-|\.)+/;
   const NAME_SPECIAL_REGEX = /[ ][ ]/;
@@ -34,6 +37,7 @@ const Register = () => {
   });
 
   const [errors, setErrors] = useState({});
+  const [isLoading, setIsLoading] = useState(false);
 
   const isFilled = () => {
     if (
@@ -167,28 +171,65 @@ const Register = () => {
 
   const handleImage = (e) => {
     const file = e.target.files[0];
-    const reader = new FileReader();
 
-    reader.onloadend = () => {
+    if (file) {
       setFormData({
         ...formData,
-        image: reader.result,
+        image: file,
+        preview: URL.createObjectURL(file),
       });
-      console.log(reader.result);
-    };
-
-    if (file) reader.readAsDataURL(file);
+    }
   };
 
-  const handleSubmit = (e) => {
+  const fetchData = async (data) => {
+    let imageUrl = "";
+
+    if (data.image) {
+      const imgForm = new FormData();
+      imgForm.append("image", data.image);
+
+      const uploadRes = await fetch(`${API_URL}/image`, {
+        method: "POST",
+        body: imgForm,
+      });
+
+      const uploadData = await uploadRes.json();
+      imageUrl = uploadData.url;
+    }
+
+    const response = await fetch(`${API_URL}/users/register`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        firstName: data.fName,
+        lastName: data.lName,
+        displayName: data.display,
+        password: data.password,
+        image: imageUrl,
+      }),
+    });
+    if (!response.ok) {
+      const res = await response.json();
+      throw new Error(res.message);
+    }
+    const res = await response.json();
+    return res;
+  };
+
+  const handleSubmit = async (e) => {
     e.preventDefault();
 
     if (validateFields()) {
-      console.log(formData);
-      existingUsers.push(formData);
-      localStorage.setItem("users", JSON.stringify(existingUsers));
-      toast.success("Signed up successfully", { id: "register-success" });
-      navigate("/login");
+      setIsLoading(true);
+      try {
+        await fetchData(formData);
+        toast.success("Signed up successfully", { id: "register-success" });
+        navigate("/login");
+      } catch (error) {
+        toast.error(error.message, { id: "register-failed" });
+      } finally {
+        setIsLoading(false);
+      }
     }
   };
 
@@ -291,7 +332,7 @@ const Register = () => {
                     <div className="w-[40%] sm:w-[65%] h-[0%] aspect-square mt-[8%] mr-[4%] rounded-[50%] border-3 2xl:border-5 border-[var(--blue-500)]">
                       <label className="cursor-pointer" htmlFor="image">
                         <img
-                          src={formData.image ? formData.image : ProfilePic}
+                          src={formData.preview ? formData.preview : ProfilePic}
                           className="w-[95%] h-[95%] mt-[2.5%] ml-[2.5%] rounded-full object-cover"
                         />
                       </label>
@@ -323,9 +364,9 @@ const Register = () => {
 
                   <button
                     type="submit"
-                    className={`w-full py-[4%] sm:py-[2%] px-[4%] text-[6cpw] sm:text-[4.1cqw] mt-[12%] sm:mt-[10%] font-poppins bg-(--gray-100) dark:bg-(--gray-600) rounded-lg bg-[linear-gradient(100deg,var(--blue-500),var(--purple-800))] text-white dark:text-[var(--gray-300)] shadow-md transition duration-300 ease-in-out ${isFilled() ? "cursor-pointer" : "grayscale-60"}`}
+                    className={`w-full py-[4%] sm:py-[2%] px-[4%] text-[6cpw] sm:text-[4.1cqw] mt-[12%] sm:mt-[10%] font-poppins bg-(--gray-100) dark:bg-(--gray-600) rounded-lg bg-[linear-gradient(100deg,var(--blue-500),var(--purple-800))] text-white dark:text-[var(--gray-300)] shadow-md transition duration-300 ease-in-out ${isFilled() && !isLoading ? "cursor-pointer" : "grayscale-70"}`}
                   >
-                    Sign up
+                    {isLoading ? `Signing up...` : "Sign up"}
                   </button>
                 </form>
 

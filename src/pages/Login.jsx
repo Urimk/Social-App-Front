@@ -7,14 +7,14 @@ import toast from "react-hot-toast";
 import Checkbox from "../components/Checkbox/Checkbox";
 
 const Login = () => {
+  const API_URL =
+    import.meta.env.VITE_RENDER_API_URL || "http://localhost:5000";
+
   const navigate = useNavigate();
 
-  const allUsers = JSON.parse(localStorage.getItem("users")) || [];
+  const [isLoading, setIsLoading] = useState(false);
 
-  const [formData, setFormData] = useState({
-    password: "",
-    display: "",
-  });
+  const [formData, setFormData] = useState({ displayName: "", password: "" });
 
   const handleChange = (e) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
@@ -25,22 +25,39 @@ const Login = () => {
     return true;
   };
 
-  const handleSubmit = (e) => {
+  const fetchData = async (data) => {
+    const response = await fetch(`${API_URL}/auth/login`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        displayName: data.display,
+        password: data.password,
+      }),
+    });
+    if (!response.ok) {
+      const res = await response.json();
+      throw new Error(res.message);
+    }
+    const res = await response.json();
+    return res;
+  };
+
+  const handleSubmit = async (e) => {
     e.preventDefault();
     if (!isFilled()) {
       return;
     }
-    const foundUser = allUsers.find(
-      (user) =>
-        user.display === formData.display &&
-        user.password === formData.password,
-    );
-    if (foundUser) {
-      localStorage.setItem("currentUser", JSON.stringify(foundUser));
+    setIsLoading(true);
+    try {
+      const res = await fetchData(formData);
+      localStorage.setItem("token", res.token);
+      localStorage.setItem("user", JSON.stringify(res.user));
       toast.success("Signed in successfully");
       navigate("/chat");
-    } else {
-      toast.error("Wrong username or password", { id: "login-failed" });
+    } catch (error) {
+      toast.error(error.message);
+    } finally {
+      setIsLoading(false);
     }
   };
 
@@ -83,9 +100,9 @@ const Login = () => {
                     type="submit"
                     onClick={(e) => handleSubmit(e)}
                     className={`w-full py-[4%] sm:py-[2%] px-[4%] text-[6cpw] sm:text-[4.1cqw] mt-[12%] sm:mt-[10%] font-poppins placeholder-(--gray-500) dark:placeholder-(--gray-300) bg-(--gray-100) dark:bg-(--gray-600) rounded-lg bg-[linear-gradient(100deg,var(--blue-500),var(--purple-500))]
-                    dark:bg-[linear-gradient(100deg,var(--blue-700),var(--purple-800))] text-white dark:text-[var(--gray-300)] shadow-md  transition duration-300 ease-in-out ${isFilled() ? "cursor-pointer" : "grayscale-60"}`}
+                    dark:bg-[linear-gradient(100deg,var(--blue-700),var(--purple-800))] text-white dark:text-[var(--gray-300)] shadow-md  transition duration-300 ease-in-out ${isFilled() && !isLoading ? "cursor-pointer" : "grayscale-70"}`}
                   >
-                    Sign in
+                    {isLoading ? "Signing in..." : "Sign in"}
                   </button>
                 </form>
                 <h4 className="text-[6cpw] sm:text-[4.1cqw] mt-[16%] sm:mt-[14.6%] mx-auto font-poppins text-(--gray-500) dark:text-(--gray-300)">

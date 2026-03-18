@@ -1,51 +1,99 @@
-import { useEffect, useState } from "react";
 import FriendRequest from "./FriendRequest";
+import CircularProgress from "@mui/material/CircularProgress";
+import Box from "@mui/material/Box";
 
 function RequestsList({
-  friends,
-  setFriends,
   friendRequests,
   setFriendRequests,
-  display,
+  friends,
+  setFriends,
 }) {
-  const handleAddFriend = (request) => {
-    console.log(request);
-    friends.push({ usr1: request.from, usr2: request.to, msgs: [] });
-    localStorage.setItem("friends", JSON.stringify(friends));
-    const newRequests = friendRequests.filter(
-      (req) => req.from !== request.form && req.to !== request.to,
+  const API_URL =
+    import.meta.env.VITE_RENDER_API_URL || "http://localhost:5000";
+
+  const handleAddFriend = async (request) => {
+    const token = localStorage.getItem("token");
+    const response = await fetch(
+      `${API_URL}/chat/${request.displayName}/acceptRequest`,
+      {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          authorization: `Bearer ${token}`,
+        },
+      },
     );
-    setFriends(friends);
-    setFriendRequests(newRequests);
-    localStorage.setItem("friendRequests", JSON.stringify(newRequests));
+    if (!response.ok) {
+      const res = await response.json();
+      throw new Error(res.message);
+    }
+    const res = await response.json();
+    setFriendRequests(
+      friendRequests.filter((req) => request.displayName != req.displayName),
+    );
+    const newFriends = [...friends, res.chat];
+    setFriends(newFriends);
   };
 
-  const handleDeleteRequest = (request) => {
-    const newRequests = friendRequests.filter(
-      (req) => req.from === request.form && req.to === request.to,
+  const handleDeleteRequest = async (request) => {
+    const token = localStorage.getItem("token");
+    const response = await fetch(
+      `${API_URL}/users/${request.displayName}/request`,
+      {
+        method: "DELETE",
+        headers: {
+          "Content-Type": "application/json",
+          authorization: `Bearer ${token}`,
+        },
+      },
     );
-    console.log(newRequests);
-    setFriendRequests(newRequests);
-    localStorage.setItem("friendRequests", JSON.stringify(newRequests));
+    if (!response.ok) {
+      const res = await response.json();
+      throw new Error(res.message);
+    }
+    setFriendRequests(
+      friendRequests.filter((req) => request.displayName != req.displayName),
+    );
   };
+
   return (
     <div className={friendRequests.length === 0 ? "hidden" : ""}>
       <div className="flex 2xl:ml-[8px] ml-lg-[8px] font-poppins text-[var(--gray-500)] dark:text-[var(--gray-300)] 2xl:text-[16px] sm:text-lg-[16px] sm:mb-lg-[5px] mb-[3px] text-[18px] items-center justify-between">
         <div>Friend Requests</div>
         <div className="font-semibold">...</div>
       </div>
-      <ul>
-        {friendRequests
-          .filter((request) => request.to === display)
-          .map((request) => (
+      {friendRequests === "Loading" ? (
+        <Box
+          sx={{
+            display: "flex",
+            justifyContent: "center",
+            minHeight: "50px",
+            pt: {
+              xs: "15px",
+              sm: "25px",
+              md: "35px",
+            },
+          }}
+        >
+          <CircularProgress
+            sx={{
+              width: { xs: 40, sm: 50, md: 60 },
+              height: { xs: 40, sm: 50, md: 60 },
+            }}
+          />
+        </Box>
+      ) : (
+        <ul>
+          {friendRequests.map((request) => (
             <FriendRequest
-              key={request.from}
+              key={request}
               request={request}
               handleAddFriend={handleAddFriend}
               handleDeleteRequest={handleDeleteRequest}
             />
           ))}
-      </ul>
+        </ul>
+      )}
     </div>
   );
 }
