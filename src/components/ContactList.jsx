@@ -2,7 +2,14 @@ import Contact from "./Contact";
 import CircularProgress from "@mui/material/CircularProgress";
 import Box from "@mui/material/Box";
 
-const ContactList = ({ users, curChat, handleChatSelect, newLastMessage }) => {
+const ContactList = ({
+  users,
+  curChat,
+  handleChatSelect,
+  newIncomingMessage,
+  newOutMessage,
+  userId,
+}) => {
   return users === "Loading" ? (
     <Box
       sx={{
@@ -29,12 +36,14 @@ const ContactList = ({ users, curChat, handleChatSelect, newLastMessage }) => {
         <Contact
           key={user.id}
           id={user.id}
+          userId={userId}
           image={user.image}
           display={user.friendName}
           message={user.lastMessage}
           curChat={curChat}
           handleChatSelect={handleChatSelect}
-          newLastMessage={newLastMessage}
+          newOutMessage={newOutMessage}
+          newIncomingMessage={newIncomingMessage}
         />
       ))}
     </ul>

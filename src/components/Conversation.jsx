@@ -19,14 +19,16 @@ function Conversation({
   setChat,
   contactDisplay,
   contactImage,
-  setNewLastMessage,
+  newOutMessage,
+  setOutMessage,
+  newIncomingMessage,
+  setIncomingMessage,
   controllerRef,
 }) {
   const API_URL =
     import.meta.env.VITE_RENDER_API_URL || "http://localhost:5000";
   const [unsentMsgs, setUnsentMsgs] = useState({});
   const [message, setMessage] = useState("");
-  const [newMessage, setNewMessage] = useState({});
   const [messages, setMessages] = useState("Loading");
 
   useEffect(() => {
@@ -55,8 +57,7 @@ function Conversation({
         throw new Error(res.message);
       }
       const res = await response.json();
-      setNewMessage(res.messageObj);
-      setNewLastMessage(res.messageObj);
+      setIncomingMessage(res.messageObj);
       setMessage("");
     } catch (error) {
       toast.error(error.message);
@@ -103,10 +104,11 @@ function Conversation({
       </div>
       <MessageList
         chat={chat}
-        newMessage={newMessage}
+        newOutMessage={newOutMessage}
+        newIncomingMessage={newIncomingMessage}
         messages={messages}
         setMessages={setMessages}
-        controllerRef={controllerRef}
+        incomingMessage={newOutMessage}
       />
       <form
         onSubmit={(e) => handleSend(e)}

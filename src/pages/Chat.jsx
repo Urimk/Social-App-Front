@@ -15,18 +15,21 @@ import AddContact from "../components/AddContact";
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import RequestsList from "../components/RequestsList";
+import { socket } from "../socket";
 
 const Chat = () => {
   const API_URL =
     import.meta.env.VITE_RENDER_API_URL || "http://localhost:5000";
   const navigate = useNavigate();
 
-
+  const [userId, setUserId] = useState("");
   const [profilePic, setDefaultPic] = useState("");
   const [isWindowOpen, setIsWindowOpen] = useState(false);
   const [chats, setChats] = useState("Loading");
   const [friendRequests, setFriendRequests] = useState("Loading");
-  const [newLastMessage, setNewLastMessage] = useState({});
+  const [newIncomingMessage, setIncomingMessage] = useState({});
+  const [newOutMessage, setOutMessage] = useState({});
+
   const [isAuth, setIsAuth] = useState(false);
 
   const fetchDefaultPic = async () => {
@@ -93,23 +96,48 @@ const Chat = () => {
     const checkAuth = async () => {
       try {
         const token = localStorage.getItem("token");
-        await fetch("/auth/check", {
+        if (!token) throw new Error("No Token");
+        const res = await fetch(`${API_URL}/auth/check`, {
+          method: "GET",
           headers: {
-            Authorization: `Bearer ${token}`,
+            "Content-Type": "application/json",
+            authorization: `Bearer ${token}`,
           },
         });
+
+        if (!res.ok) throw new Error(res.message);
+        const data = await res.json();
+
         setIsAuth(true);
+        setUserId(data.userId);
+        return data.userId;
       } catch (error) {
         setIsAuth(false);
-        console.log(error);
+        localStorage.removeItem("token");
+        localStorage.removeItem("user");
+        socket.disconnect();
         navigate("/login");
+        return false;
       }
     };
+    const init = async () => {
+      const isValid = await checkAuth();
+      if (!isValid) return;
+      socket.connect();
+      console.log(isValid);
+      socket.emit("setup", isValid.toString());
+      socket.on("message_received", (data) => {
+        setIncomingMessage(data);
+      });
+      fetchDefaultPic();
+      fetchRequests();
+      fetchChats();
+    };
 
-    checkAuth();
-    fetchDefaultPic();
-    fetchRequests();
-    fetchChats();
+    init();
+    return () => {
+      socket.off("message_received");
+    };
   }, []);
 
   const [curChat, setCurChat] = useState({});
@@ -117,6 +145,8 @@ const Chat = () => {
   const [contactImage, setContactImage] = useState("");
 
   const handleLogout = () => {
+    socket.disconnect();
+
     navigate("/login");
     localStorage.removeItem("token");
     localStorage.removeItem("user");
@@ -197,7 +227,9 @@ const Chat = () => {
                   users={chats}
                   curChat={curChat}
                   handleChatSelect={handleChatSelect}
-                  newLastMessage={newLastMessage}
+                  newOutMessage={newOutMessage}
+                  newIncomingMessage={newIncomingMessage}
+                  userId={userId}
                 />
               </div>
               <div className="flex 2xl:mt-[21px] mt-lg-[21px] 2xl:mb-[5px] sm:mb-lg-[5px] mb-[3px] 2xl:ml-[8px] ml-lg-[8px] font-poppins text-[var(--gray-500)] dark:text-[var(--gray-300)] 2xl:text-[16px] sm:text-lg-[16px] text-[18px] items-center justify-between">
@@ -208,7 +240,9 @@ const Chat = () => {
                 users={chats}
                 curChat={curChat}
                 handleChatSelect={handleChatSelect}
-                newLastMessage={newLastMessage}
+                newOutMessage={newOutMessage}
+                newIncomingMessage={newIncomingMessage}
+                userId={userId}
               />
             </SimpleBar>
           </div>
@@ -218,7 +252,10 @@ const Chat = () => {
           setChat={setCurChat}
           contactDisplay={contactDisplay}
           contactImage={contactImage}
-          setNewLastMessage={setNewLastMessage}
+          newOutMessage={newOutMessage}
+          newIncomingMessage={newIncomingMessage}
+          setOutMessage={setOutMessage}
+          setIncomingMessage={setIncomingMessage}
         />
         <AddContact
           isWindowOpen={isWindowOpen}

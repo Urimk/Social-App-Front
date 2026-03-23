@@ -7,10 +7,10 @@ import { useState, useEffect, useRef } from "react";
 
 function MessageList({
   chat,
-  newMessage,
+  newOutMessage,
+  newIncomingMessage,
   messages,
   setMessages,
-  controllerRef,
 }) {
   const API_URL =
     import.meta.env.VITE_RENDER_API_URL || "http://localhost:5000";
@@ -27,49 +27,48 @@ function MessageList({
   };
 
   useEffect(() => {
-  if (!chat) return; 
+    if (!chat) return;
 
-  const controller = new AbortController();
+    const controller = new AbortController();
 
-  const fetchMessages = async () => {
-    try {
-      setMessages("Loading");
-      const token = localStorage.getItem("token");
-      
-      const response = await fetch(`${API_URL}/chat/${chat}/messages`, {
-        method: "GET",
-        headers: {
-          "Content-Type": "application/json",
-          authorization: `Bearer ${token}`,
-        },
-        signal: controller.signal, 
-      });
+    const fetchMessages = async () => {
+      try {
+        setMessages("Loading");
+        const token = localStorage.getItem("token");
 
-      if (!response.ok) {
+        const response = await fetch(`${API_URL}/chat/${chat}/messages`, {
+          method: "GET",
+          headers: {
+            "Content-Type": "application/json",
+            authorization: `Bearer ${token}`,
+          },
+          signal: controller.signal,
+        });
+
+        if (!response.ok) {
+          const res = await response.json();
+          throw new Error(res.message);
+        }
+
         const res = await response.json();
-        throw new Error(res.message);
+        setCurrentUser(res.currentUser);
+        setMessages(res.messages);
+      } catch (error) {
+        if (error.name === "AbortError") {
+          console.log("Aborted fetch for chat:", chat);
+          return;
+        }
+
+        toast.error(error.message);
       }
+    };
 
-      const res = await response.json();
-      setCurrentUser(res.currentUser);
-      setMessages(res.messages);
+    fetchMessages();
 
-    } catch (error) {
-      if (error.name === "AbortError") {
-        console.log("Aborted fetch for chat:", chat);
-        return; 
-      }
-      
-      toast.error(error.message);
-    }
-  };
-
-  fetchMessages();
-
-  return () => {
-    controller.abort();
-  };
-}, [chat]);
+    return () => {
+      controller.abort();
+    };
+  }, [chat]);
 
   useEffect(() => {
     if (messages !== "Loading") {
@@ -78,10 +77,16 @@ function MessageList({
   }, [messages]);
 
   useEffect(() => {
-    if (Object.keys(newMessage).length !== 0) {
-      setMessages((prev) => [...prev, newMessage]);
+    if (Object.keys(newIncomingMessage).length !== 0) {
+      setMessages((prev) => [...prev, newIncomingMessage]);
     }
-  }, [newMessage]);
+  }, [newIncomingMessage]);
+
+  useEffect(() => {
+    if (Object.keys(newOutMessage).length !== 0) {
+      setMessages((prev) => [...prev, newOutMessage]);
+    }
+  }, [newOutMessage]);
 
   return (
     <div className="flex-1 min-h-0 flex flex-col justify-end">

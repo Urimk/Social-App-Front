@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import SimpleBar from "simplebar-react";
 import "simplebar-react/dist/simplebar.min.css";
@@ -15,6 +15,30 @@ const Login = () => {
   const [isLoading, setIsLoading] = useState(false);
 
   const [formData, setFormData] = useState({ displayName: "", password: "" });
+
+  const [isLoggedIn, setIsLoggedIn] = useState(true);
+
+  useEffect(() => {
+    const checkAuth = async () => {
+      try {
+        const token = localStorage.getItem("token");
+        if (token) throw new Error("Already Logged in");
+        await fetch("/auth/check", {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        });
+        setIsLoggedIn(false);
+        localStorage.removeItem("token");
+        localStorage.removeItem("user");
+      } catch (error) {
+        setIsLoggedIn(true);
+        navigate("/chat");
+      }
+    };
+
+    checkAuth();
+  }, []);
 
   const handleChange = (e) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
@@ -61,7 +85,9 @@ const Login = () => {
     }
   };
 
-  return (
+  return isLoggedIn ? (
+    <></>
+  ) : (
     <div>
       <div className="min-h-screen  bg-[url('/background1.png')] bg-no-repeat bg-cover bg-center">
         <div className="absolute flex sm:block flex-col justify-center inset-0 bg-gradient-to-b dark:from-black/35 dark:to-black/55">

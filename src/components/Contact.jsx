@@ -5,18 +5,28 @@ import { useEffect, useState } from "react";
 function Contact({
   curChat,
   id,
+  userId,
   image,
   display,
   message,
   handleChatSelect,
-  newLastMessage,
+  newOutMessage,
+  newIncomingMessage,
 }) {
   const [msg, setMsg] = useState(message);
   useEffect(() => {
-    if (newLastMessage.chatId === id) {
-      setMsg(newLastMessage);
+    if (newOutMessage.chatId === id) {
+      setMsg(newOutMessage);
     }
-  }, [newLastMessage]);
+  }, [newOutMessage]);
+
+  useEffect(() => {
+    if (newIncomingMessage.chatId === id) {
+      setMsg(newIncomingMessage);
+    }
+  }, [newIncomingMessage]);
+  console.log(msg);
+  console.log(msg?.authorId, id);
   return (
     <div
       onClick={() => {
@@ -42,7 +52,7 @@ function Contact({
         </div>
         <div className="flex justify-between 2xl:w-[350px]">
           <div
-            className={`2xl:text-[16px] sm:text-lg-[16px] text-[18px] 2xl:ml-[6px] ml-lg-[6px] ${message ? (message.userId !== id ? "text-[var(--blue-500)]" : `text-[var(--gray-500)] dark:text-[var(--gray-300)]`) : "text-[var(--blue-500)] font-semibold"} font-poppins`}
+            className={`2xl:text-[16px] sm:text-lg-[16px] text-[18px] 2xl:ml-[6px] ml-lg-[6px] ${msg ? (msg.authorId === userId ? "text-[var(--blue-500)]" : `text-[var(--gray-500)] dark:text-[var(--gray-300)]`) : "text-[var(--blue-500)] font-semibold"} font-poppins`}
           >
             {msg?.text ? msg.text : "New Chat"}
           </div>
