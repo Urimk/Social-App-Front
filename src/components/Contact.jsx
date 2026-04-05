@@ -25,8 +25,7 @@ function Contact({
       setMsg(newIncomingMessage);
     }
   }, [newIncomingMessage]);
-  console.log(msg);
-  console.log(msg?.authorId, id);
+
   return (
     <div
       onClick={() => {

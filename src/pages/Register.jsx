@@ -9,7 +9,9 @@ import ProfilePic from "../assets/Default_pic.png";
 
 const Register = () => {
   const API_URL =
-    import.meta.env.VITE_RENDER_API_URL || "http://localhost:5000";
+    localStorage.getItem("apiAddress") ||
+    import.meta.env.VITE_RENDER_API_URL ||
+    "http://localhost:5000";
 
   const NAME_CHAR_REGEX = /(\w|-|\.| )+/;
   const DISPLAY_CHAR_REGEX = /(\w|-|\.)+/;
@@ -39,6 +41,9 @@ const Register = () => {
   const [errors, setErrors] = useState({});
   const [isLoading, setIsLoading] = useState(false);
   const [isLoggedIn, setIsLoggedIn] = useState(true);
+  const [darkMode, setDarkMode] = useState(
+    localStorage.getItem("darkMode") || "false",
+  );
 
   useEffect(() => {
     const checkAuth = async () => {
@@ -259,7 +264,7 @@ const Register = () => {
   return isLoggedIn ? (
     <></>
   ) : (
-    <div>
+    <div className={darkMode === "true" ? "dark" : ""}>
       <div className="min-h-screen bg-[url('/background1.png')] bg-no-repeat bg-cover bg-center">
         <div className="absolute flex sm:block flex-col justify-center inset-0 bg-gradient-to-b dark:from-black/35 dark:to-black/55">
           <div className="mx-auto max-w-9/10 rounded-2xl sm:rounded-t-none max-h-9/10 rounded-t-2xl sm:aspect-[0.63/1] min-w-[350px] sm:max-h-97/100 bg-white dark:bg-(--gray-900) overflow-hidden">

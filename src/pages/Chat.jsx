@@ -12,6 +12,7 @@ import DefaultPic from "../assets/Default_pic.png";
 import ContactList from "../components/ContactList";
 import Conversation from "../components/Conversation";
 import AddContact from "../components/AddContact";
+import Options from "../components/Options";
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import RequestsList from "../components/RequestsList";
@@ -19,16 +20,23 @@ import { socket } from "../socket";
 
 const Chat = () => {
   const API_URL =
-    import.meta.env.VITE_RENDER_API_URL || "http://localhost:5000";
+    localStorage.getItem("apiAddress") ||
+    import.meta.env.VITE_RENDER_API_URL ||
+    "http://localhost:5000";
   const navigate = useNavigate();
 
   const [userId, setUserId] = useState("");
-  const [profilePic, setDefaultPic] = useState("");
+  const [profilePic, setProfilePic] = useState("");
   const [isWindowOpen, setIsWindowOpen] = useState(false);
+  const [isOptionsOpen, setIsOptionsOpen] = useState(false);
   const [chats, setChats] = useState("Loading");
   const [friendRequests, setFriendRequests] = useState("Loading");
   const [newIncomingMessage, setIncomingMessage] = useState({});
   const [newOutMessage, setOutMessage] = useState({});
+  const [isTop, setIsTop] = useState(true);
+  const [darkMode, setDarkMode] = useState(
+    localStorage.getItem("darkMode") || "false",
+  );
 
   const [isAuth, setIsAuth] = useState(false);
 
@@ -47,7 +55,7 @@ const Chat = () => {
     }
     const res = await response.json();
     if (res.image) {
-      setDefaultPic(res.image);
+      setProfilePic(res.image);
     }
     return res;
   };
@@ -159,7 +167,7 @@ const Chat = () => {
   };
 
   return isAuth ? (
-    <div>
+    <div className={darkMode === "true" ? "dark" : ""}>
       <div className="flex flex-col sm:flex-row w-full h-screen min-h-0  overflow-y-hidden overflow-x-auto dark:bg-[var(--gray-900)]">
         <div
           className={`flex flex-row sm:flex-col justify-center gap-[25vw] sm:gap-0 sm:justify-between h-[75px] sm:h-full bg-[var(--gray-100)] dark:bg-[var(--gray-800)] 2xl:py-[39px] py-lg-[39px] 2xl:px-[22px] px-lg-[22px] items-center sm:flex ${Object.keys(curChat).length !== 0 ? "hidden sm:flex" : ""}`}
@@ -177,7 +185,10 @@ const Chat = () => {
             <div className="2xl:mt-[10.5px] sm:mt-lg-[10.5px] border-1 2xl:w-[17.3px] w-lg-[17.3px] rounded-4xl border-[var(--blue-500)] hidden sm:flex"></div>
             <Phone className="2xl:mt-[53.5px] sm:mt-lg-[53.5px] 2xl:w-[26.5px] w-lg-[26.5px] 2xl:h-[26.5px] h-lg-[26.5px] dark:brightness-200" />
             <Bell className="2xl:mt-[64px] sm:mt-lg-[64px] 2xl:w-[24.5px] w-lg-[24.5px] 2xl:h-[29.5] h-lg-[29.5] dark:brightness-200" />
-            <Settings className="2xl:mt-[64px] sm:mt-lg-[64px] 2xl:w-[32px] w-lg-[32px] 2xl:h-[32px] h-lg-[32px] dark:brightness-200" />
+            <Settings
+              onClick={() => setIsOptionsOpen(true)}
+              className="2xl:mt-[64px] sm:mt-lg-[64px] 2xl:w-[32px] w-lg-[32px] 2xl:h-[32px] h-lg-[32px] dark:brightness-200"
+            />
           </div>
 
           <Logout
@@ -206,7 +217,7 @@ const Chat = () => {
             <input
               type="text"
               placeholder="Search"
-              className="sm:w-full 2xl:mb-[21px] w-[84vw] sm:mb-lg-[21px] my-[18px] 2xl:pl-[40px] pl-lg-[40px] 2xl:pr-[15px] pr-lg-[15px] 2xl:py-[8px] py-lg-[8px] 2xl:ml-[15px] sm:ml-lg-[15px] mx-[3vw] bg-[var(--gray-100)] 2xl:h-[39px] sm:h-lg-[39px] 2xl:mt-[12px] sm:mt-lg-[12px]  rounded-2xl focus:outline-none focus:ring-1 focus:ring-[var(--blue-500)] focus:dark:ring-[var(--blue-400)] transition-all duration-200 ease-in-out placeholder:text-[var(--gray-500)] dark:placeholder:text-[var(--gray-300)] dark:text-white 2xl:text-[16px] sm:text-lg-[16px] text-[18px] font-poppins dark:bg-(--gray-600) focus:dark:ring-[var(--blue-500)]"
+              className="sm:w-full 2xl:mb-[21px] w-[84vw] sm:mb-lg-[21px] my-[18px] 2xl:pl-[40px] pl-lg-[40px] 2xl:pr-[15px] pr-lg-[15px] 2xl:py-[8px] py-lg-[8px] 2xl:ml-[15px] sm:ml-lg-[15px] mx-[3vw] bg-[var(--gray-100)] 2xl:h-[39px] sm:h-lg-[39px] 2xl:mt-[12px] sm:mt-lg-[12px]  rounded-2xl focus:outline-none focus:ring-1 focus:ring-[var(--blue-500)] focus:dark:ring-[var(--blue-400)]  placeholder:text-[var(--gray-500)] dark:placeholder:text-[var(--gray-300)] dark:text-white 2xl:text-[16px] sm:text-lg-[16px] text-[18px] font-poppins dark:bg-(--gray-600) focus:dark:ring-[var(--blue-500)]"
             ></input>
             <Search className="absolute 2xl:w-[12.5px] sm:w-lg-[12.5px] w-[12.5px] 2xl:bottom-[27px] sm:bottom-lg-[24px] bottom-[24px] 2xl:left-[34px] left-lg-[34px] text-[var(--gray-500)]  dark:brightness-200  font-thin" />
           </div>
@@ -260,6 +271,16 @@ const Chat = () => {
         <AddContact
           isWindowOpen={isWindowOpen}
           setIsWindowOpen={setIsWindowOpen}
+        />
+        <Options
+          isTop={isTop}
+          setIsTop={setIsTop}
+          isOptionsOpen={isOptionsOpen}
+          setIsOptionsOpen={setIsOptionsOpen}
+          darkMode={darkMode}
+          setDarkMode={setDarkMode}
+          profilePic={profilePic}
+          setProfilePic={setProfilePic}
         />
       </div>
     </div>

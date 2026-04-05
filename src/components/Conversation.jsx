@@ -26,7 +26,9 @@ function Conversation({
   controllerRef,
 }) {
   const API_URL =
-    import.meta.env.VITE_RENDER_API_URL || "http://localhost:5000";
+    localStorage.getItem("apiAddress") ||
+    import.meta.env.VITE_RENDER_API_URL ||
+    "http://localhost:5000";
   const [unsentMsgs, setUnsentMsgs] = useState({});
   const [message, setMessage] = useState("");
   const [messages, setMessages] = useState("Loading");

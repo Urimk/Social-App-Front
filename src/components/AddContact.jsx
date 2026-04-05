@@ -4,7 +4,9 @@ import toast from "react-hot-toast";
 
 const AddContact = ({ isWindowOpen, setIsWindowOpen }) => {
   const API_URL =
-    import.meta.env.VITE_RENDER_API_URL || "http://localhost:5000";
+    localStorage.getItem("apiAddress") ||
+    import.meta.env.VITE_RENDER_API_URL ||
+    "http://localhost:5000";
   const [contactName, setContactName] = useState("");
   const [isLoading, setIsLoading] = useState(false);
 

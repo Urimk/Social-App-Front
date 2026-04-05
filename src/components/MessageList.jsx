@@ -13,7 +13,9 @@ function MessageList({
   setMessages,
 }) {
   const API_URL =
-    import.meta.env.VITE_RENDER_API_URL || "http://localhost:5000";
+    localStorage.getItem("apiAddress") ||
+    import.meta.env.VITE_RENDER_API_URL ||
+    "http://localhost:5000";
   const [curUser, setCurrentUser] = useState({});
   const simpleBarRef = useRef(null);
   const controller = new AbortController();

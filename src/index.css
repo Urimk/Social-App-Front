@@ -4,7 +4,7 @@
   --font-poppins: "Poppins", sans-serif;
 }
 
-@custom-variant dark (haxors-never-match);
+@custom-variant dark (&:where(.dark, .dark *));
 
 :root {
   --lg-mult: 0.8;
