@@ -1,16 +1,52 @@
-# React + Vite
+# Real-Time Chat Application (Frontend) 
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+A highly interactive, real-time messaging interface built with **React** and **Tailwind CSS**. This client application connects to a custom Node.js/Socket.io backend to deliver a seamless, responsive, and secure chat experience.
 
-Currently, two official plugins are available:
+[Live Demo](https://social-5s72alo1p-uri-ks-projects.vercel.app) | [Backend Repository](https://github.com/Urimk/Social-App-Back)
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Babel](https://babeljs.io/) (or [oxc](https://oxc.rs) when used in [rolldown-vite](https://vite.dev/guide/rolldown)) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
+##  Key Features
 
-## React Compiler
+* **Real-Time UI:** Instant message delivery and active state synchronization powered by `socket.io-client`.
+* **Client-Side Security:** Secure protected routing using React Router, and local token management for authenticated sessions.
+* **Complex Form Handling:** Custom, robust form validation for user registration and login flows.
+* **Dynamic Theme:** Built-in Dark/Light mode toggle with user preferences persisted in local storage.
+* **Profile Management:** Intuitive UI for users to update their display name and preview profile pictures before uploading.
+* **UX Enhancements:** Smooth error handling, loading states, and success feedback using Toast notifications.
+* **Responsive Design:** Fully optimized for both mobile and desktop screens using utility-first CSS.
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
+##  Tech Stack
 
-## Expanding the ESLint configuration
+* **Build Tool:** Vite
+* **Framework:** React.js
+* **Styling:** Tailwind CSS
+* **WebSockets:** Socket.io-client
+* **Routing:** React Router DOM
+* **State Management:** React Hooks
+* **HTTP Client:** Fetch API 
+* **Notifications:** React Hot Toast
 
-If you are developing a production application, we recommend using TypeScript with type-aware lint rules enabled. Check out the [TS template](https://github.com/vitejs/vite/tree/main/packages/create-vite/template-react-ts) for information on how to integrate TypeScript and [`typescript-eslint`](https://typescript-eslint.io) in your project.
+##  Environment Variables
+
+To run this project, you will need to add the following environment variables to your `.env` file (at the root of your project):
+
+`VITE_API_URL` - The URL of your backend server (e.g., `http://localhost:4000`)
+
+##  Run Locally
+
+1. **Clone the project:**
+   ```bash
+   git clone [https://github.com/Urimk/Social-App-Front](https://github.com/Urimk/Social-App-Front)
+2. **Navigate to the project directory:**
+   ````bash
+      cd your-frontend-repo-name
+3. **Install dependencies:**
+   ```bash
+   npm install
+4. **Start the development server:**
+     ```bash
+   npm run dev
+Roadmap (Upcoming Features)
+[Add your future frontend features here, e.g., typing indicators, read receipts, message search]
+---
+
+Created by Uri Knoll
