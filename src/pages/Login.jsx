@@ -122,9 +122,12 @@ const Login = () => {
                     name="password"
                     className="w-full py-[4%] sm:py-[2%] px-[4%] text-[6cpw] sm:text-[4.1cqw] mt-[5%] sm:mt-[4%] font-poppins placeholder-(--gray-500) dark:placeholder-(--gray-300) dark:text-white bg-(--gray-100) dark:bg-(--gray-600) rounded-lg focus:outline-none focus:ring-2 focus:ring-[var(--blue-500)] focus:dark:ring-[var(--blue-400)] transition-all duration-200 ease-in-out"
                   />
-                  <div className="options mt-[4%] flex justify-between text-[3.8cqw]  font-poppins">
+                  <div
+                    title="Coming soon"
+                    className="options mt-[4%] flex justify-between text-[3.8cqw]  font-poppins opacity-50 cursor-not-allowed"
+                  >
                     <Checkbox />
-                    <a className="text-[var(--blue-500)] dark:text-[var(--blue-400)] text-[4.1cqw] sm:text-[3.3cqw]/3.75 mt-[0.4%] sm:mt-[0%] font-poppins underline cursor-pointer tracking-wide sm:tracking-normal">
+                    <a className="text-[var(--blue-500)] dark:text-[var(--blue-400)] text-[4.1cqw] sm:text-[3.3cqw]/3.75 mt-[0.4%] sm:mt-[0%] font-poppins underline  tracking-wide sm:tracking-normal">
                       Forgot your password?
                     </a>
                   </div>
@@ -141,9 +144,18 @@ const Login = () => {
                   Or Sign Up Using
                 </h4>
                 <div className="flex mt-[9.2%] justify-around mr-[5%] ml-[5%] sm:mr-[7%] sm:ml-[8%]">
-                  <div className="bg-[var(--gray-100)] aspect-square w-[22%] sm:w-[19.5%] rounded-full"></div>
-                  <div className="bg-[var(--gray-100)] aspect-square w-[22%] sm:w-[19.5%] rounded-full"></div>
-                  <div className="bg-[var(--gray-100)] aspect-square w-[22%] sm:w-[19.5%] rounded-full"></div>
+                  <div
+                    title="Coming soon"
+                    className="bg-[var(--gray-100)] aspect-square w-[22%] sm:w-[19.5%] rounded-full opacity-50 cursor-not-allowed"
+                  ></div>
+                  <div
+                    title="Coming soon"
+                    className="bg-[var(--gray-100)] aspect-square w-[22%] sm:w-[19.5%] rounded-full opacity-50 cursor-not-allowed"
+                  ></div>
+                  <div
+                    title="Coming soon"
+                    className="bg-[var(--gray-100)] aspect-square w-[22%] sm:w-[19.5%] rounded-full opacity-50 cursor-not-allowed"
+                  ></div>
                 </div>
                 <div className="flex flex-col sm:flex-row mt-[10%] justify-center items-center sm:gap-[3%]">
                   <p className="text-[6cpw] sm:text-[4.1cqw] font-poppins text-(--gray-500) dark:text-(--gray-300)">

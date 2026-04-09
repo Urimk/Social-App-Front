@@ -183,8 +183,12 @@ const Chat = () => {
             <div className="2xl:mt-[26.5px] mt-lg-[26.5px] border-1 2xl:w-[55px] w-lg-[55px] rounded-4xl border-[var(--gray-500)] dark:border-[var(--gray-300)] hidden sm:flex"></div>
             <Message className="2xl:w-[31.7px] w-lg-[31.7px] 2xl:h-[28px] sm:h-lg-[28px] 2xl:mt-[67.1px] sm:mt-lg-[67.1px]  " />
             <div className="2xl:mt-[10.5px] sm:mt-lg-[10.5px] border-1 2xl:w-[17.3px] w-lg-[17.3px] rounded-4xl border-[var(--blue-500)] hidden sm:flex"></div>
-            <Phone className="2xl:mt-[53.5px] sm:mt-lg-[53.5px] 2xl:w-[26.5px] w-lg-[26.5px] 2xl:h-[26.5px] h-lg-[26.5px] dark:brightness-200" />
-            <Bell className="2xl:mt-[64px] sm:mt-lg-[64px] 2xl:w-[24.5px] w-lg-[24.5px] 2xl:h-[29.5] h-lg-[29.5] dark:brightness-200" />
+            <div title="Coming soon">
+              <Phone className="2xl:mt-[53.5px] sm:mt-lg-[53.5px] 2xl:w-[26.5px] w-lg-[26.5px] 2xl:h-[26.5px] h-lg-[26.5px] dark:brightness-200 opacity-50 cursor-not-allowed" />
+            </div>
+            <div title="Coming soon">
+              <Bell className="2xl:mt-[64px] sm:mt-lg-[64px] 2xl:w-[24.5px] w-lg-[24.5px] 2xl:h-[29.5] h-lg-[29.5] dark:brightness-200 opacity-50 cursor-not-allowed" />
+            </div>
             <Settings
               onClick={() => setIsOptionsOpen(true)}
               className="2xl:mt-[64px] sm:mt-lg-[64px] 2xl:w-[32px] w-lg-[32px] 2xl:h-[32px] h-lg-[32px] dark:brightness-200"
@@ -202,7 +206,10 @@ const Chat = () => {
           <div className="flex 2xl:ml-[15px] sm:ml-lg-[15px] 2xl:mb-[5px] mb-lg-[5px] font-poppins text-[var(--gray-500)] dark:text-[var(--gray-300)] 2xl:text-[22px] sm:text-lg-[22px] text-[26px] font-semibold items-center justify-between">
             <div>
               Messages &nbsp;{" "}
-              <span className="text-[var(--blue-500)]  font-medium 2xl:text-[20px] sm:text-lg-[20px] text-[24px]">
+              <span
+                title="Coming soon"
+                className="text-[var(--blue-500)]  font-medium 2xl:text-[20px] sm:text-lg-[20px] text-[24px] opacity-50 cursor-not-allowed"
+              >
                 (23)
               </span>
             </div>
@@ -215,9 +222,10 @@ const Chat = () => {
           </div>
           <div className="relative 2xl:w-[476px] sm:w-lg-[476px] ">
             <input
+              title="Coming soon"
               type="text"
               placeholder="Search"
-              className="sm:w-full 2xl:mb-[21px] w-[84vw] sm:mb-lg-[21px] my-[18px] 2xl:pl-[40px] pl-lg-[40px] 2xl:pr-[15px] pr-lg-[15px] 2xl:py-[8px] py-lg-[8px] 2xl:ml-[15px] sm:ml-lg-[15px] mx-[3vw] bg-[var(--gray-100)] 2xl:h-[39px] sm:h-lg-[39px] 2xl:mt-[12px] sm:mt-lg-[12px]  rounded-2xl focus:outline-none focus:ring-1 focus:ring-[var(--blue-500)] focus:dark:ring-[var(--blue-400)]  placeholder:text-[var(--gray-500)] dark:placeholder:text-[var(--gray-300)] dark:text-white 2xl:text-[16px] sm:text-lg-[16px] text-[18px] font-poppins dark:bg-(--gray-600) focus:dark:ring-[var(--blue-500)]"
+              className="sm:w-full 2xl:mb-[21px] w-[84vw] sm:mb-lg-[21px] my-[18px] 2xl:pl-[40px] pl-lg-[40px] 2xl:pr-[15px] pr-lg-[15px] 2xl:py-[8px] py-lg-[8px] 2xl:ml-[15px] sm:ml-lg-[15px] mx-[3vw] bg-[var(--gray-100)] 2xl:h-[39px] sm:h-lg-[39px] 2xl:mt-[12px] sm:mt-lg-[12px]  rounded-2xl focus:outline-none focus:ring-1 focus:ring-[var(--blue-500)] focus:dark:ring-[var(--blue-400)]  placeholder:text-[var(--gray-500)] dark:placeholder:text-[var(--gray-300)] dark:text-white 2xl:text-[16px] sm:text-lg-[16px] text-[18px] font-poppins dark:bg-(--gray-600) focus:dark:ring-[var(--blue-500)] opacity-50 cursor-not-allowed"
             ></input>
             <Search className="absolute 2xl:w-[12.5px] sm:w-lg-[12.5px] w-[12.5px] 2xl:bottom-[27px] sm:bottom-lg-[24px] bottom-[24px] 2xl:left-[34px] left-lg-[34px] text-[var(--gray-500)]  dark:brightness-200  font-thin" />
           </div>
@@ -245,7 +253,12 @@ const Chat = () => {
               </div>
               <div className="flex 2xl:mt-[21px] mt-lg-[21px] 2xl:mb-[5px] sm:mb-lg-[5px] mb-[3px] 2xl:ml-[8px] ml-lg-[8px] font-poppins text-[var(--gray-500)] dark:text-[var(--gray-300)] 2xl:text-[16px] sm:text-lg-[16px] text-[18px] items-center justify-between">
                 <div>All</div>
-                <div className="font-semibold">...</div>
+                <div
+                  title="Coming Soon"
+                  className="font-semibold opacity-50 cursor-not-allowed"
+                >
+                  ...
+                </div>
               </div>
               <ContactList
                 users={chats}

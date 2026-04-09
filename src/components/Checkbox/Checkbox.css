@@ -31,7 +31,7 @@
 .checkbox-wrapper label {
   color: currentColor;
   line-height: var(--size);
-  cursor: pointer;
+  cursor: not-allowed;
   position: relative;
 }
 

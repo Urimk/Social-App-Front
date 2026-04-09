@@ -61,14 +61,15 @@ const ConfirmDelete = ({ isWindowOpen, setIsWindowOpen, setIsTop }) => {
         <form>
           <div className="2xl:mt-[50px] sm:mt-lg-[50px] mt-[30px] flex flex-col sm:flex-row 2xl:gap-[13px] sm:gap-lg-[13px] gap-[10px] items-center">
             <label
-              htmlFor="username"
+              htmlFor="password"
               className="2xl:text-[20px] sm:text-lg-[20px] text-[16px] font-poppins text-[var(--gray-500)] dark:text-[var(--gray-300)] tracking-[0.2px]"
             >
               password:
             </label>
             <input
-              name="username"
-              id="username"
+              name="password"
+              id="password"
+              type="password"
               value={password}
               onChange={(e) => {
                 setPassword(e.target.value);
