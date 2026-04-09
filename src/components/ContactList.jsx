@@ -2,6 +2,16 @@ import Contact from "./Contact";
 import CircularProgress from "@mui/material/CircularProgress";
 import Box from "@mui/material/Box";
 
+/**
+ * ContactList component for displaying the list of contacts.
+ * @param {Object} props - The component props.
+ * @param {Array|string} props.users - List of users or "Loading".
+ * @param {Object} props.curChat - Current selected chat.
+ * @param {Function} props.handleChatSelect - Function to handle chat selection.
+ * @param {Object} props.newIncomingMessage - New incoming message.
+ * @param {Object} props.newOutMessage - New outgoing message.
+ * @param {string} props.userId - Current user ID.
+ */
 const ContactList = ({
   users,
   curChat,

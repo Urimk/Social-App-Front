@@ -4,6 +4,7 @@ import "simplebar-react/dist/simplebar.min.css";
 import CircularProgress from "@mui/material/CircularProgress";
 import Box from "@mui/material/Box";
 import { useState, useEffect, useRef } from "react";
+import toast from "react-hot-toast";
 
 function MessageList({
   chat,
@@ -18,8 +19,8 @@ function MessageList({
     "http://localhost:5000";
   const [curUser, setCurrentUser] = useState({});
   const simpleBarRef = useRef(null);
+  // eslint-disable-next-line no-unused-vars
   const controller = new AbortController();
-  const signal = controller.signal;
 
   const scrollToBottom = () => {
     if (simpleBarRef.current) {
@@ -70,7 +71,7 @@ function MessageList({
     return () => {
       controller.abort();
     };
-  }, [chat]);
+  }, [chat, API_URL, setMessages]);
 
   useEffect(() => {
     if (messages !== "Loading") {
@@ -82,13 +83,13 @@ function MessageList({
     if (Object.keys(newIncomingMessage).length !== 0) {
       setMessages((prev) => [...prev, newIncomingMessage]);
     }
-  }, [newIncomingMessage]);
+  }, [newIncomingMessage, setMessages]);
 
   useEffect(() => {
     if (Object.keys(newOutMessage).length !== 0) {
       setMessages((prev) => [...prev, newOutMessage]);
     }
-  }, [newOutMessage]);
+  }, [newOutMessage, setMessages]);
 
   return (
     <div className="flex-1 min-h-0 flex flex-col justify-end">

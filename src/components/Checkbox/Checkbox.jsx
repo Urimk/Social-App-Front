@@ -1,7 +1,7 @@
-import { useState, useId } from "react";
+import { useId } from "react";
 import "./Checkbox.css";
 
-export default function Checkbox({}) {
+export default function Checkbox() {
   const id = useId();
   return (
     <div

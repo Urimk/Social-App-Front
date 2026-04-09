@@ -2,6 +2,14 @@ import FriendRequest from "./FriendRequest";
 import CircularProgress from "@mui/material/CircularProgress";
 import Box from "@mui/material/Box";
 
+/**
+ * RequestsList component for displaying and managing friend requests.
+ * @param {Object} props - The component props.
+ * @param {Array|string} props.friendRequests - List of friend requests or "Loading".
+ * @param {Function} props.setFriendRequests - Function to update friend requests.
+ * @param {Array} props.friends - List of friends.
+ * @param {Function} props.setFriends - Function to update friends.
+ */
 function RequestsList({
   friendRequests,
   setFriendRequests,
@@ -13,6 +21,10 @@ function RequestsList({
     import.meta.env.VITE_RENDER_API_URL ||
     "http://localhost:5000";
 
+  /**
+   * Handles accepting a friend request.
+   * @param {Object} request - The friend request object.
+   */
   const handleAddFriend = async (request) => {
     const token = localStorage.getItem("token");
     const response = await fetch(
@@ -37,6 +49,10 @@ function RequestsList({
     setFriends(newFriends);
   };
 
+  /**
+   * Handles deleting a friend request.
+   * @param {Object} request - The friend request object.
+   */
   const handleDeleteRequest = async (request) => {
     const token = localStorage.getItem("token");
     const response = await fetch(
@@ -60,7 +76,13 @@ function RequestsList({
 
   return (
     <div className={friendRequests.length === 0 ? "hidden" : ""}>
-      <div className="flex 2xl:ml-[8px] ml-lg-[8px] font-poppins text-[var(--gray-500)] dark:text-[var(--gray-300)] 2xl:text-[16px] sm:text-lg-[16px] sm:mb-lg-[5px] mb-[3px] text-[18px] items-center justify-between">
+      {/* Header */}
+      <div
+        className="flex 2xl:ml-[8px] ml-lg-[8px] font-poppins
+        text-[var(--gray-500)] dark:text-[var(--gray-300)] 2xl:text-[16px]
+        sm:text-lg-[16px] sm:mb-lg-[5px] mb-[3px] text-[18px] items-center
+        justify-between"
+      >
         <div>Friend Requests</div>
         <div className="font-semibold">...</div>
       </div>
