@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 
 import SimpleBar from "simplebar-react";
@@ -42,30 +42,7 @@ const Register = () => {
 
   const [errors, setErrors] = useState({});
   const [isLoading, setIsLoading] = useState(false);
-  const [isLoggedIn, setIsLoggedIn] = useState(true);
   const [darkMode] = useState(localStorage.getItem("darkMode") || "false");
-
-  useEffect(() => {
-    const checkAuth = async () => {
-      try {
-        const token = localStorage.getItem("token");
-        if (token) throw new Error("Already Logged in");
-        await fetch("/auth/check", {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        });
-        setIsLoggedIn(false);
-        localStorage.removeItem("token");
-        localStorage.removeItem("user");
-      } catch {
-        setIsLoggedIn(true);
-        navigate("/chat");
-      }
-    };
-
-    checkAuth();
-  }, [navigate]);
 
   /**
    * Checks if the form is filled and valid.
@@ -80,10 +57,10 @@ const Register = () => {
       formData.display === ""
     )
       return false;
-    Object.entries(errors).forEach(([, messages]) => {
-      if (messages.length !== 0) return false;
+    const hasErrors = Object.entries(errors).forEach(([, messages]) => {
+      if (messages.length !== 0) return true;
     });
-    return true;
+    return !hasErrors;
   };
 
   /**
@@ -142,8 +119,8 @@ const Register = () => {
       }
 
       if (
-        !NAME_CHAR_REGEX.test(formData.lNameSp) ||
-        NAME_SPECIAL_REGEX.test(formData.lNameSp)
+        !NAME_CHAR_REGEX.test(formData.lName) ||
+        NAME_SPECIAL_REGEX.test(formData.lName)
       ) {
         errors.push("Invalid last name format");
       }
@@ -295,9 +272,7 @@ const Register = () => {
     }
   };
 
-  return isLoggedIn ? (
-    <></>
-  ) : (
+  return (
     <div className={darkMode === "true" ? "dark" : ""}>
       {/* Background with overlay */}
       <div
@@ -503,6 +478,7 @@ const Register = () => {
                       text-white dark:text-[var(--gray-300)] shadow-md
                       transition duration-300 ease-in-out
                       ${isFilled() && !isLoading ? "cursor-pointer" : "grayscale-70"}`}
+                    disabled={!isFilled() || isLoading}
                   >
                     {isLoading ? `Signing up...` : "Sign up"}
                   </button>

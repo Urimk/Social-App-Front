@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import SimpleBar from "simplebar-react";
 import "simplebar-react/dist/simplebar.min.css";
@@ -19,32 +19,8 @@ const Login = () => {
   const navigate = useNavigate();
 
   const [isLoading, setIsLoading] = useState(false);
-  const [formData, setFormData] = useState({ displayName: "", password: "" });
-  const [isLoggedIn, setIsLoggedIn] = useState(true);
+  const [formData, setFormData] = useState({ display: "", password: "" });
   const [darkMode] = useState(localStorage.getItem("darkMode") || "false");
-
-  // Check if user is already authenticated on mount
-  useEffect(() => {
-    const checkAuth = async () => {
-      try {
-        const token = localStorage.getItem("token");
-        if (token) throw new Error("Already Logged in");
-        await fetch("/auth/check", {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        });
-        setIsLoggedIn(false);
-        localStorage.removeItem("token");
-        localStorage.removeItem("user");
-      } catch {
-        setIsLoggedIn(true);
-        navigate("/chat");
-      }
-    };
-
-    checkAuth();
-  }, [navigate]);
 
   /**
    * Handles input field changes.
@@ -108,9 +84,7 @@ const Login = () => {
     }
   };
 
-  return isLoggedIn ? (
-    <></>
-  ) : (
+  return (
     <div className={darkMode === "true" ? "dark" : ""}>
       {/* Background with overlay */}
       <div
@@ -142,7 +116,7 @@ const Login = () => {
                 </h2>
 
                 {/* Login form */}
-                <form action="" className="mt-[8%] sm:mt-[6.6%] w-full">
+                <form action="" onSubmit={(e) => handleSubmit(e)} className="mt-[8%] sm:mt-[6.6%] w-full">
                   <input
                     type="text"
                     onChange={(e) => {
@@ -193,7 +167,6 @@ const Login = () => {
                   {/* Submit button */}
                   <button
                     type="submit"
-                    onClick={(e) => handleSubmit(e)}
                     className={`w-full py-[4%] sm:py-[2%] px-[4%] text-[6cpw]
                       sm:text-[4.1cqw] mt-[12%] sm:mt-[10%] font-poppins
                       placeholder-[var(--gray-500)] dark:placeholder-[var(--gray-300)]
@@ -203,6 +176,7 @@ const Login = () => {
                       text-white dark:text-[var(--gray-300)] shadow-md
                       transition duration-300 ease-in-out
                       ${isFilled() && !isLoading ? "cursor-pointer" : "grayscale-70"}`}
+                    disabled={!isFilled() || isLoading}
                   >
                     {isLoading ? "Signing in..." : "Sign in"}
                   </button>
@@ -213,7 +187,7 @@ const Login = () => {
                   className="text-[6cpw] sm:text-[4.1cqw] mt-[16%] sm:mt-[14.6%]
                   mx-auto font-poppins text-[var(--gray-500)] dark:text-[var(--gray-300)]"
                 >
-                  Or Sign Up Using
+                  Or Sign In Using
                 </h4>
                 <div
                   className="flex mt-[9.2%] justify-around mr-[5%] ml-[5%]

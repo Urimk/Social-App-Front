@@ -44,8 +44,6 @@ const Chat = () => {
     localStorage.getItem("darkMode") || "false",
   );
 
-  const [isAuth, setIsAuth] = useState(false);
-
   /**
    * Fetches the user's default profile picture.
    */
@@ -117,45 +115,25 @@ const Chat = () => {
 
   // Initialize authentication, socket connection, and fetch data on mount
   useEffect(() => {
-    const checkAuth = async () => {
+    const init = async () => {
       try {
-        const token = localStorage.getItem("token");
-        if (!token) throw new Error("No Token");
-        const res = await fetch(`${API_URL}/auth/check`, {
-          method: "GET",
-          headers: {
-            "Content-Type": "application/json",
-            authorization: `Bearer ${token}`,
-          },
+        const storedUser = JSON.parse(localStorage.getItem("user") || "{}");
+        const currentUserId = storedUser?.id || storedUser?._id || "";
+        setUserId(currentUserId);
+
+        socket.connect();
+        if (currentUserId) {
+          socket.emit("setup", currentUserId.toString());
+        }
+
+        socket.on("message_received", (data) => {
+          setIncomingMessage(data);
         });
 
-        if (!res.ok) throw new Error(res.message);
-        const data = await res.json();
-
-        setIsAuth(true);
-        setUserId(data.userId);
-        return data.userId;
+        await Promise.all([fetchDefaultPic(), fetchRequests(), fetchChats()]);
       } catch {
-        setIsAuth(false);
-        localStorage.removeItem("token");
-        localStorage.removeItem("user");
-        socket.disconnect();
-        navigate("/login");
-        return false;
+        console.error("Error initializing chat");
       }
-    };
-    const init = async () => {
-      const isValid = await checkAuth();
-      if (!isValid) return;
-      socket.connect();
-      console.log(isValid);
-      socket.emit("setup", isValid.toString());
-      socket.on("message_received", (data) => {
-        setIncomingMessage(data);
-      });
-      fetchDefaultPic();
-      fetchRequests();
-      fetchChats();
     };
 
     init();
@@ -191,7 +169,7 @@ const Chat = () => {
     setContactImage(contactImage);
   };
 
-  return isAuth ? (
+  return (
     <div className={darkMode === "true" ? "dark" : ""}>
       {/* Main chat layout */}
       <div
@@ -416,8 +394,6 @@ const Chat = () => {
         />
       </div>
     </div>
-  ) : (
-    <></>
   );
 };
 export default Chat;
