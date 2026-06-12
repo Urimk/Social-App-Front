@@ -1,9 +1,55 @@
 import { io } from "socket.io-client";
+import { getApiUrl } from "./utils/auth";
 
-const URL = import.meta.env.SOCKET_ENV || "http://localhost:5000";
+let socketInstance = null;
+
+const createSocket = () =>
+  io(getApiUrl(), {
+    autoConnect: false,
+  });
 
 /**
- * Socket.io client instance for real-time communication.
- * Connects to the server at the specified URL with autoConnect disabled.
+ * Returns the shared socket client, creating it if needed.
  */
-export const socket = io(URL, { autoConnect: false });
+export const getSocket = () => {
+  if (!socketInstance) {
+    socketInstance = createSocket();
+  }
+  return socketInstance;
+};
+
+/**
+ * Connects the socket with the current auth token.
+ */
+export const connectSocket = () => {
+  const socket = getSocket();
+  socket.auth = { token: localStorage.getItem("token") };
+
+  if (!socket.connected) {
+    socket.connect();
+  }
+
+  return socket;
+};
+
+/**
+ * Disconnects the active socket connection.
+ */
+export const disconnectSocket = () => {
+  if (socketInstance?.connected) {
+    socketInstance.disconnect();
+  }
+};
+
+/**
+ * Recreates the socket client (e.g. after API URL change).
+ */
+export const reconnectSocket = () => {
+  if (socketInstance) {
+    socketInstance.removeAllListeners();
+    socketInstance.disconnect();
+    socketInstance = null;
+  }
+
+  return connectSocket();
+};

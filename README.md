@@ -29,7 +29,7 @@ A highly interactive, real-time messaging interface built with **React** and **T
 
 To run this project, you will need to add the following environment variables to your `.env` file (at the root of your project):
 
-`VITE_API_URL` - The URL of your backend server (e.g., `http://localhost:4000`)
+`VITE_RENDER_API` - The URL of your backend server (e.g., `http://localhost:4000`)
 
 ##  Run Locally
 

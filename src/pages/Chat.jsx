@@ -16,7 +16,8 @@ import Options from "../components/Options";
 import { useState, useEffect, useCallback } from "react";
 import { useNavigate } from "react-router-dom";
 import RequestsList from "../components/RequestsList";
-import { socket } from "../socket";
+import { useSocket } from "../context/SocketProvider";
+import { clearAuthStorage } from "../utils/auth";
 
 /**
  * Chat page component - Main chat interface.
@@ -29,6 +30,8 @@ const Chat = () => {
     import.meta.env.VITE_RENDER_API_URL ||
     "http://localhost:5000";
   const navigate = useNavigate();
+  const { incomingMessage: newIncomingMessage, setIncomingMessage, disconnectSocket } =
+    useSocket();
 
   const [userId, setUserId] = useState("");
   const [profilePic, setProfilePic] = useState("");
@@ -36,7 +39,6 @@ const Chat = () => {
   const [isOptionsOpen, setIsOptionsOpen] = useState(false);
   const [chats, setChats] = useState("Loading");
   const [friendRequests, setFriendRequests] = useState("Loading");
-  const [newIncomingMessage, setIncomingMessage] = useState({});
   // eslint-disable-next-line no-unused-vars
   const [newOutMessage, setOutMessage] = useState({});
   const [isTop, setIsTop] = useState(true);
@@ -113,22 +115,12 @@ const Chat = () => {
     return res;
   }, [API_URL]);
 
-  // Initialize authentication, socket connection, and fetch data on mount
   useEffect(() => {
     const init = async () => {
       try {
         const storedUser = JSON.parse(localStorage.getItem("user") || "{}");
         const currentUserId = storedUser?.id || storedUser?._id || "";
         setUserId(currentUserId);
-
-        socket.connect();
-        if (currentUserId) {
-          socket.emit("setup", currentUserId.toString());
-        }
-
-        socket.on("message_received", (data) => {
-          setIncomingMessage(data);
-        });
 
         await Promise.all([fetchDefaultPic(), fetchRequests(), fetchChats()]);
       } catch {
@@ -137,10 +129,7 @@ const Chat = () => {
     };
 
     init();
-    return () => {
-      socket.off("message_received");
-    };
-  }, [API_URL, fetchChats, fetchDefaultPic, fetchRequests, navigate]);
+  }, [fetchChats, fetchDefaultPic, fetchRequests]);
 
   const [curChat, setCurChat] = useState({});
   const [contactDisplay, setContactDisplay] = useState("");
@@ -150,11 +139,9 @@ const Chat = () => {
    * Handles user logout by disconnecting socket and clearing local storage.
    */
   const handleLogout = () => {
-    socket.disconnect();
-
+    disconnectSocket();
+    clearAuthStorage();
     navigate("/login");
-    localStorage.removeItem("token");
-    localStorage.removeItem("user");
   };
 
   /**

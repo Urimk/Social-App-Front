@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import { Navigate } from "react-router-dom";
+import { SocketProvider } from "../context/SocketProvider";
 import { validateToken } from "../utils/auth";
 
 const PrivateRoute = ({ children }) => {
@@ -24,7 +25,7 @@ const PrivateRoute = ({ children }) => {
     return <Navigate to="/login" replace />;
   }
 
-  return children;
+  return <SocketProvider>{children}</SocketProvider>;
 };
 
 export default PrivateRoute;

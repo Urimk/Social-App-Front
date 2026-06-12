@@ -6,6 +6,7 @@ import DefaultPic from "../assets/Default_pic.png";
 
 import toast from "react-hot-toast";
 import ConfirmDelete from "./ConfirmDelete";
+import { useSocket } from "../context/SocketProvider";
 
 const MaterialUISwitch = styled(Switch)(({ theme }) => ({
   width: 62,
@@ -73,6 +74,7 @@ const Options = ({
   profilePic,
   setProfilePic,
 }) => {
+  const { reconnectSocket } = useSocket();
   const [isConfirmOpen, setIsConfirmOpen] = useState(false);
   const [apiUrl, setApiUrl] = useState(
     localStorage.getItem("apiAddress") ||
@@ -298,6 +300,7 @@ const Options = ({
             onClick={() => {
               localStorage.setItem("apiAddress", customApi);
               setApiUrl(customApi);
+              reconnectSocket();
             }}
             className={`sm:w-[50px] self-center sm:self-auto mt-[10px]
               sm:mt-[0] py-[4px] sm:py-[4px] sm:px-[12px] px-[40px] text-[16px]
