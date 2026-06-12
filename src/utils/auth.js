@@ -1,7 +1,25 @@
+const normalizeApiUrl = (url) => {
+  if (!url) return url;
+
+  let normalized = url.trim().replace(/\/$/, "");
+
+  if (
+    typeof window !== "undefined" &&
+    window.location.protocol === "https:" &&
+    normalized.startsWith("http://")
+  ) {
+    normalized = normalized.replace(/^http:\/\//i, "https://");
+  }
+
+  return normalized;
+};
+
 export const getApiUrl = () =>
-  localStorage.getItem("apiAddress") ||
-  import.meta.env.VITE_RENDER_API_URL ||
-  "http://localhost:5000";
+  normalizeApiUrl(
+    localStorage.getItem("apiAddress") ||
+      import.meta.env.VITE_RENDER_API_URL ||
+      "http://localhost:5000",
+  );
 
 export const clearAuthStorage = () => {
   localStorage.removeItem("token");
