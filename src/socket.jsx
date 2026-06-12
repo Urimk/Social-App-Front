@@ -1,5 +1,9 @@
 import { io } from "socket.io-client";
 
-const URL = import.meta.env.SOCKET_ENV || "http://localhost:5000";
+const URL =
+  import.meta.env.VITE_RENDER_API_URL || "http://localhost:5000";
 
-export const socket = io(URL, { autoConnect: false });
+export const socket = io(URL, {
+  autoConnect: false,
+  withCredentials: true,
+});
