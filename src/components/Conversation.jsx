@@ -1,4 +1,4 @@
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import ProfilePic from "../assets/Default_pic.png";
 import {
   Phone,
@@ -11,20 +11,10 @@ import {
   Back,
 } from "../assets/icons";
 import MessageList from "./MessageList";
-import { useState } from "react";
 import toast from "react-hot-toast";
 
 /**
  * Conversation component for displaying the chat interface.
- * Shows the contact header, message list, and input form for sending messages.
- *
- * @param {Object} chat - The current chat object.
- * @param {Function} setChat - Function to set the current chat.
- * @param {string} contactDisplay - The display name of the contact.
- * @param {string} contactImage - The profile image URL of the contact.
- * @param {Object} newOutMessage - New outgoing message state.
- * @param {Object} newIncomingMessage - New incoming message state.
- * @param {Function} setIncomingMessage - Function to set incoming messages.
  */
 function Conversation({
   chat,
@@ -33,7 +23,7 @@ function Conversation({
   contactImage,
   newOutMessage,
   newIncomingMessage,
-  setIncomingMessage,
+  setOutMessage,
 }) {
   const API_URL =
     localStorage.getItem("apiAddress") ||
@@ -41,24 +31,19 @@ function Conversation({
     "http://localhost:5000";
   const [unsentMsgs, setUnsentMsgs] = useState({});
   const [message, setMessage] = useState("");
-  const [messages, setMessages] = useState("Loading");
+  const [messages, setMessages] = useState([]);
+  const [isMessagesLoading, setIsMessagesLoading] = useState(true);
+  const hasActiveChat = Boolean(chat);
 
-  // Load unsent message for the current chat
   useEffect(() => {
-    if (chat in unsentMsgs) {
-      setMessage(unsentMsgs[chat]);
-    } else {
-      setMessage("");
-    }
+    setMessage(unsentMsgs[chat] ?? "");
   }, [chat]);
 
-  /**
-   * Handles sending a message.
-   * @param {Event} e - The form submit event.
-   */
   const handleSend = async (e) => {
     e.preventDefault();
-    if (messages === "Loading") return;
+    const trimmedMessage = message.trim();
+    if (!trimmedMessage || isMessagesLoading) return;
+
     const token = localStorage.getItem("token");
     try {
       const response = await fetch(`${API_URL}/chat/${chat}/message`, {
@@ -67,29 +52,34 @@ function Conversation({
           "Content-Type": "application/json",
           authorization: `Bearer ${token}`,
         },
-        body: JSON.stringify({ content: message }),
+        body: JSON.stringify({ content: trimmedMessage }),
       });
       if (!response.ok) {
         const res = await response.json();
         throw new Error(res.message);
       }
       const res = await response.json();
-      setIncomingMessage(res.messageObj);
+      setOutMessage(res.messageObj);
       setMessage("");
+      setUnsentMsgs((prev) => {
+        const next = { ...prev };
+        delete next[chat];
+        return next;
+      });
     } catch (error) {
       toast.error(error.message);
     }
   };
-  return Object.keys(chat).length !== 0 ? (
+
+  return hasActiveChat ? (
     <div className="flex-1 2xl:min-w-[550px] sm:min-w-lg-[700px] flex flex-col h-screen sm:flex">
-      {/* Mobile header with action buttons */}
       <div
         className="flex justify-center items-center bg-[var(--gray-800)] gap-[14vw]
         py-[2vh] 2xl:mr-[15px] sm:hidden"
       >
         <Back
           onClick={() => {
-            setChat({});
+            setChat("");
           }}
           className="dark:brightness-200 w-[32px]"
         />
@@ -109,7 +99,6 @@ function Conversation({
           <More className="dark:brightness-200" />
         </div>
       </div>
-      {/* Contact header */}
       <div
         className="flex justify-between 2xl:mt-[41px] sm:mt-lg-[41px] mt-[2.5vh]
         2xl:ml-[56px] sm:ml-lg-[56px] 2xl:pb-[24.5px] pb-lg-[24.5px] 2xl:mr-[54.5px]
@@ -145,7 +134,6 @@ function Conversation({
           </div>
         </div>
 
-        {/* Desktop action buttons */}
         <div
           className="flex 2xl:gap-[47.5px] gap-lg-[47.5px] 2xl:mt-[28px] mt-lg-[28px]
           2xl:mr-[15px] mr-lg-[15px] hidden sm:flex"
@@ -167,19 +155,17 @@ function Conversation({
           </div>
         </div>
       </div>
-      {/* Message list */}
       <MessageList
         chat={chat}
         newOutMessage={newOutMessage}
         newIncomingMessage={newIncomingMessage}
         messages={messages}
         setMessages={setMessages}
-        incomingMessage={newOutMessage}
+        onLoadingChange={setIsMessagesLoading}
       />
 
-      {/* Message input form */}
       <form
-        onSubmit={(e) => handleSend(e)}
+        onSubmit={handleSend}
         className="flex 2xl:pt-[31px] pt-lg-[31px] 2xl:mb-[39px] mb-lg-[39px]
           2xl:ml-[56px] sm:ml-lg-[56px] 2xl:mr-[54.5px] sm:mr-lg-[54.5px]
           border-t-2 border-[var(--gray-500)] dark:border-[var(--gray-100)]"
@@ -193,10 +179,11 @@ function Conversation({
         <input
           type="text"
           onChange={(e) => {
-            setMessage(e.target.value);
-            setUnsentMsgs({ ...unsentMsgs, [chat]: message });
+            const value = e.target.value;
+            setMessage(value);
+            setUnsentMsgs((prev) => ({ ...prev, [chat]: value }));
           }}
-          placeholder="Message Name"
+          placeholder="Type a message"
           value={message}
           className="focus:outline-none sm:flex-1 w-[60vw] 2xl:ml-[22.5px] sm:ml-lg-[22.5px]
             ml-[3vw] 2xl:mr-[10px] sm:mr-lg-[10px] mr-[6vw] font-poppins
@@ -217,8 +204,6 @@ function Conversation({
         </div>
       </form>
     </div>
-  ) : (
-    <></>
-  );
+  ) : null;
 }
 export default Conversation;

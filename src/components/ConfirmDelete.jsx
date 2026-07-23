@@ -1,6 +1,8 @@
 import { useState } from "react";
 import toast from "react-hot-toast";
 import { useNavigate } from "react-router-dom";
+import { useSocket } from "../context/SocketProvider";
+import { clearAuthStorage } from "../utils/auth";
 
 /**
  * ConfirmDelete component for account deletion confirmation.
@@ -13,6 +15,7 @@ import { useNavigate } from "react-router-dom";
  */
 const ConfirmDelete = ({ isWindowOpen, setIsWindowOpen, setIsTop }) => {
   const navigate = useNavigate();
+  const { disconnectSocket } = useSocket();
 
   const API_URL =
     localStorage.getItem("apiAddress") ||
@@ -42,7 +45,8 @@ const ConfirmDelete = ({ isWindowOpen, setIsWindowOpen, setIsTop }) => {
       });
       if (res.ok) {
         toast.success("Account deleted successfully");
-        localStorage.clear();
+        disconnectSocket();
+        clearAuthStorage();
         navigate("/login");
       } else {
         const data = await res.json();

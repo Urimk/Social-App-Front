@@ -31,8 +31,11 @@ function Contact({
 }) {
   // Compute the latest message based on updates
   const msg = useMemo(() => {
-    if (newOutMessage.chatId === id) return newOutMessage;
-    if (newIncomingMessage.chatId === id) return newIncomingMessage;
+    const chatId = id?.toString();
+    if (newOutMessage?.chatId?.toString() === chatId) return newOutMessage;
+    if (newIncomingMessage?.chatId?.toString() === chatId) {
+      return newIncomingMessage;
+    }
     return message;
   }, [newOutMessage, newIncomingMessage, message, id]);
 
@@ -83,7 +86,7 @@ function Contact({
             className={`2xl:text-[16px] sm:text-lg-[16px] text-[18px] 2xl:ml-[6px] ml-lg-[6px]
               ${
                 msg
-                  ? msg.authorId === userId
+                  ? msg.authorId?.toString() === userId?.toString()
                     ? "text-[var(--blue-500)]"
                     : "text-[var(--gray-500)] dark:text-[var(--gray-300)]"
                   : "text-[var(--blue-500)] font-semibold"

@@ -6,21 +6,42 @@ import Box from "@mui/material/Box";
 import { useState, useEffect, useRef } from "react";
 import toast from "react-hot-toast";
 
+const belongsToChat = (message, chatId) =>
+  message?.chatId?.toString() === chatId?.toString();
+
+const appendMessage = (messages, message) => {
+  if (!Array.isArray(messages) || !message?._id) return messages;
+  if (messages.some((item) => item._id === message._id)) return messages;
+  return [...messages, message];
+};
+
+const mergeMessages = (fetched, pending) => {
+  const merged = Array.isArray(fetched) ? [...fetched] : [];
+  for (const message of pending) {
+    if (!message?._id) continue;
+    if (!merged.some((item) => item._id === message._id)) {
+      merged.push(message);
+    }
+  }
+  return merged;
+};
+
 function MessageList({
   chat,
   newOutMessage,
   newIncomingMessage,
   messages,
   setMessages,
+  onLoadingChange,
 }) {
   const API_URL =
     localStorage.getItem("apiAddress") ||
     import.meta.env.VITE_RENDER_API_URL ||
     "http://localhost:5000";
-  const [curUser, setCurrentUser] = useState({});
+  const [curUser, setCurrentUser] = useState(null);
+  const [isLoading, setIsLoading] = useState(true);
   const simpleBarRef = useRef(null);
-  // eslint-disable-next-line no-unused-vars
-  const controller = new AbortController();
+  const pendingMessagesRef = useRef([]);
 
   const scrollToBottom = () => {
     if (simpleBarRef.current) {
@@ -30,13 +51,20 @@ function MessageList({
   };
 
   useEffect(() => {
+    onLoadingChange?.(isLoading);
+  }, [isLoading, onLoadingChange]);
+
+  useEffect(() => {
     if (!chat) return;
 
     const controller = new AbortController();
+    pendingMessagesRef.current = [];
+    setIsLoading(true);
+    setCurrentUser(null);
+    setMessages([]);
 
     const fetchMessages = async () => {
       try {
-        setMessages("Loading");
         const token = localStorage.getItem("token");
 
         const response = await fetch(`${API_URL}/chat/${chat}/messages`, {
@@ -54,15 +82,22 @@ function MessageList({
         }
 
         const res = await response.json();
-        setCurrentUser(res.currentUser);
-        setMessages(res.messages);
+        setCurrentUser(res.currentUser ?? null);
+        setMessages(
+          mergeMessages(res.messages ?? [], pendingMessagesRef.current),
+        );
+        pendingMessagesRef.current = [];
       } catch (error) {
         if (error.name === "AbortError") {
-          console.log("Aborted fetch for chat:", chat);
           return;
         }
 
+        setMessages([]);
         toast.error(error.message);
+      } finally {
+        if (!controller.signal.aborted) {
+          setIsLoading(false);
+        }
       }
     };
 
@@ -74,22 +109,42 @@ function MessageList({
   }, [chat, API_URL, setMessages]);
 
   useEffect(() => {
-    if (messages !== "Loading") {
+    if (!isLoading) {
       scrollToBottom();
     }
-  }, [messages]);
+  }, [messages, isLoading]);
 
   useEffect(() => {
-    if (Object.keys(newIncomingMessage).length !== 0) {
-      setMessages((prev) => [...prev, newIncomingMessage]);
+    if (!belongsToChat(newIncomingMessage, chat) || !newIncomingMessage?._id) {
+      return;
     }
-  }, [newIncomingMessage, setMessages]);
+
+    if (isLoading) {
+      pendingMessagesRef.current = appendMessage(
+        pendingMessagesRef.current,
+        newIncomingMessage,
+      );
+      return;
+    }
+
+    setMessages((prev) => appendMessage(prev, newIncomingMessage));
+  }, [newIncomingMessage, chat, isLoading, setMessages]);
 
   useEffect(() => {
-    if (Object.keys(newOutMessage).length !== 0) {
-      setMessages((prev) => [...prev, newOutMessage]);
+    if (!belongsToChat(newOutMessage, chat) || !newOutMessage?._id) {
+      return;
     }
-  }, [newOutMessage, setMessages]);
+
+    if (isLoading) {
+      pendingMessagesRef.current = appendMessage(
+        pendingMessagesRef.current,
+        newOutMessage,
+      );
+      return;
+    }
+
+    setMessages((prev) => appendMessage(prev, newOutMessage));
+  }, [newOutMessage, chat, isLoading, setMessages]);
 
   return (
     <div className="flex-1 min-h-0 flex flex-col justify-end">
@@ -103,7 +158,7 @@ function MessageList({
             <div className="2xl-mb-[40px] mb-lg-[40px] font-poppins text-[var(--gray-500)] dark:text-[var(--gray-300)] 2xl:text-[18px] sm:text-lg-[18px] text-[18.5px] text-center justify-end">
               Today 01/03
             </div>
-            {messages === "Loading" ? (
+            {isLoading ? (
               <Box
                 sx={{
                   display: "flex",
@@ -121,12 +176,7 @@ function MessageList({
               </Box>
             ) : (
               messages.map((msg) => (
-                <Message
-                  key={msg._id}
-                  msg={msg}
-                  curUser={curUser}
-                  date={msg.createdAt}
-                />
+                <Message key={msg._id} msg={msg} curUser={curUser} />
               ))
             )}
           </div>

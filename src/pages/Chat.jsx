@@ -30,8 +30,7 @@ const Chat = () => {
     import.meta.env.VITE_RENDER_API_URL ||
     "http://localhost:5000";
   const navigate = useNavigate();
-  const { incomingMessage: newIncomingMessage, setIncomingMessage, disconnectSocket } =
-    useSocket();
+  const { incomingMessage: newIncomingMessage, disconnectSocket } = useSocket();
 
   const [userId, setUserId] = useState("");
   const [profilePic, setProfilePic] = useState("");
@@ -131,7 +130,7 @@ const Chat = () => {
     init();
   }, [fetchChats, fetchDefaultPic, fetchRequests]);
 
-  const [curChat, setCurChat] = useState({});
+  const [curChat, setCurChat] = useState("");
   const [contactDisplay, setContactDisplay] = useState("");
   const [contactImage, setContactImage] = useState("");
 
@@ -168,7 +167,7 @@ const Chat = () => {
           className={`flex flex-row sm:flex-col justify-center gap-[25vw] sm:gap-0
             sm:justify-between h-[75px] sm:h-full bg-[var(--gray-100)] dark:bg-[var(--gray-800)]
             2xl:py-[39px] py-lg-[39px] 2xl:px-[22px] px-lg-[22px] items-center sm:flex
-            ${Object.keys(curChat).length !== 0 ? "hidden sm:flex" : ""}`}
+            ${curChat ? "hidden sm:flex" : ""}`}
         >
           {/* Profile section */}
           <div className="flex sm:flex-col items-center gap-[10vw] sm:gap-0">
@@ -243,7 +242,7 @@ const Chat = () => {
           className={`flex flex-col 2xl:w-[537px] sm:w-lg-[537px] w-screen min-h-0
             bg-white dark:bg-[var(--gray-900)] 2xl:px-[22px] px-[5vw] sm:px-lg-[22px]
             2xl:pt-[39px] pt-lg-[39px] sm:border-r-3 border-[var(--gray-100)] sm:flex
-            ${Object.keys(curChat).length !== 0 ? "hidden sm:flex" : ""}`}
+            ${curChat ? "hidden sm:flex" : ""}`}
         >
           {/* Header */}
           <div
@@ -359,7 +358,7 @@ const Chat = () => {
           contactImage={contactImage}
           newOutMessage={newOutMessage}
           newIncomingMessage={newIncomingMessage}
-          setIncomingMessage={setIncomingMessage}
+          setOutMessage={setOutMessage}
         />
 
         {/* Add contact modal */}
