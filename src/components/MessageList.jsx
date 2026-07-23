@@ -115,36 +115,19 @@ function MessageList({
   }, [messages, isLoading]);
 
   useEffect(() => {
-    if (!belongsToChat(newIncomingMessage, chat) || !newIncomingMessage?._id) {
-      return;
-    }
+    [newIncomingMessage, newOutMessage].forEach((msg) => {
+      if (!belongsToChat(msg, chat) || !msg?._id) return;
 
-    if (isLoading) {
-      pendingMessagesRef.current = appendMessage(
-        pendingMessagesRef.current,
-        newIncomingMessage,
-      );
-      return;
-    }
-
-    setMessages((prev) => appendMessage(prev, newIncomingMessage));
-  }, [newIncomingMessage, chat, isLoading, setMessages]);
-
-  useEffect(() => {
-    if (!belongsToChat(newOutMessage, chat) || !newOutMessage?._id) {
-      return;
-    }
-
-    if (isLoading) {
-      pendingMessagesRef.current = appendMessage(
-        pendingMessagesRef.current,
-        newOutMessage,
-      );
-      return;
-    }
-
-    setMessages((prev) => appendMessage(prev, newOutMessage));
-  }, [newOutMessage, chat, isLoading, setMessages]);
+      if (isLoading) {
+        pendingMessagesRef.current = appendMessage(
+          pendingMessagesRef.current,
+          msg,
+        );
+      } else {
+        setMessages((prev) => appendMessage(prev, msg));
+      }
+    });
+  }, [newIncomingMessage, newOutMessage, chat, isLoading, setMessages]);
 
   return (
     <div className="flex-1 min-h-0 flex flex-col justify-end">
@@ -155,9 +138,6 @@ function MessageList({
           className="auto-padding-scrollbar"
         >
           <div className="flex flex-col justify-end min-h-full">
-            <div className="2xl-mb-[40px] mb-lg-[40px] font-poppins text-[var(--gray-500)] dark:text-[var(--gray-300)] 2xl:text-[18px] sm:text-lg-[18px] text-[18.5px] text-center justify-end">
-              Today 01/03
-            </div>
             {isLoading ? (
               <Box
                 sx={{
@@ -174,6 +154,10 @@ function MessageList({
                   }}
                 />
               </Box>
+            ) : messages.length === 0 ? (
+              <div className="text-center font-poppins text-[var(--gray-500)] dark:text-[var(--gray-300)] opacity-60 my-auto py-8">
+                No messages yet. Send a message to start the conversation!
+              </div>
             ) : (
               messages.map((msg) => (
                 <Message key={msg._id} msg={msg} curUser={curUser} />

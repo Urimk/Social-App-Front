@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect, useRef } from "react";
 import { Contact } from "../assets/icons";
 import toast from "react-hot-toast";
 
@@ -17,14 +17,29 @@ const AddContact = ({ isWindowOpen, setIsWindowOpen }) => {
     "http://localhost:5000";
   const [contactName, setContactName] = useState("");
   const [isLoading, setIsLoading] = useState(false);
+  const inputRef = useRef(null);
+
+  useEffect(() => {
+    if (!isWindowOpen) return;
+
+    inputRef.current?.focus();
+
+    const handleKeyDown = (e) => {
+      if (e.key === "Escape") {
+        setIsWindowOpen(false);
+      }
+    };
+
+    window.addEventListener("keydown", handleKeyDown);
+    return () => window.removeEventListener("keydown", handleKeyDown);
+  }, [isWindowOpen, setIsWindowOpen]);
 
   /**
    * Checks if the contact name is filled.
    * @returns {boolean} True if filled, false otherwise.
    */
   const isFilled = () => {
-    if (contactName === "") return false;
-    return true;
+    return contactName.trim().length > 0;
   };
 
   /**
@@ -58,7 +73,7 @@ const AddContact = ({ isWindowOpen, setIsWindowOpen }) => {
     if (!isFilled()) return;
     setIsLoading(true);
     try {
-      await fetchData(contactName);
+      await fetchData(contactName.trim());
       toast.success("Friend request sent");
       setContactName("");
       setIsWindowOpen(false);
@@ -107,6 +122,7 @@ const AddContact = ({ isWindowOpen, setIsWindowOpen }) => {
               Name
             </label>
             <input
+              ref={inputRef}
               name="username"
               id="username"
               value={contactName}
@@ -138,14 +154,14 @@ const AddContact = ({ isWindowOpen, setIsWindowOpen }) => {
               Cancel
             </button>
             <button
-              onClick={(e) => handleSubmit(e)}
               type="submit"
+              disabled={!isFilled() || isLoading}
               className={`flex-1 2xl:text-[20px] sm:text-lg-[20px] text-[16px] 2xl:mt-[50px]
                 sm:mt-lg-[50px] mt-[35px] 2xl:py-[12px] sm:py-lg-[12px] py-[8px]
                 font-poppins rounded-lg bg-[linear-gradient(100deg,var(--blue-500),var(--purple-800))]
                 text-white dark:text-[var(--gray-300)] font-semibold shadow-md
-                transition duration-300 ease-in-out cursor-pointer
-                ${isFilled() && !isLoading ? "cursor-pointer" : "grayscale-70"}`}
+                transition duration-300 ease-in-out
+                ${isFilled() && !isLoading ? "cursor-pointer" : "opacity-50 cursor-not-allowed grayscale-70"}`}
             >
               {isLoading ? "Adding..." : "Add"}
             </button>

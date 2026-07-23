@@ -13,48 +13,64 @@ import Box from "@mui/material/Box";
  * @param {string} props.userId - Current user ID.
  */
 const ContactList = ({
-  users,
+  users = [],
   curChat,
   handleChatSelect,
   newIncomingMessage,
   newOutMessage,
   userId,
 }) => {
-  return users === "Loading" ? (
-    <Box
-      sx={{
-        display: "flex",
-        justifyContent: "center",
-        minHeight: "50px",
-        pt: {
-          xs: "15px",
-          sm: "25px",
-          md: "35px",
-        },
-      }}
-    >
-      <CircularProgress
+  const isLoading = users === "Loading";
+  const userList = Array.isArray(users) ? users : [];
+
+  if (isLoading) {
+    return (
+      <Box
         sx={{
-          width: { xs: 40, sm: 50, md: 60 },
-          height: { xs: 40, sm: 50, md: 60 },
+          display: "flex",
+          justifyContent: "center",
+          minHeight: "50px",
+          pt: {
+            xs: "15px",
+            sm: "25px",
+            md: "35px",
+          },
         }}
-      />
-    </Box>
-  ) : (
-    <ul>
-      {users.map((user) => (
-        <Contact
-          key={user.id}
-          id={user.id}
-          userId={userId}
-          image={user.image}
-          display={user.friendName}
-          message={user.lastMessage}
-          curChat={curChat}
-          handleChatSelect={handleChatSelect}
-          newOutMessage={newOutMessage}
-          newIncomingMessage={newIncomingMessage}
+      >
+        <CircularProgress
+          sx={{
+            width: { xs: 40, sm: 50, md: 60 },
+            height: { xs: 40, sm: 50, md: 60 },
+          }}
         />
+      </Box>
+    );
+  }
+
+  if (userList.length === 0) {
+    return (
+      <div className="py-4 text-center text-[var(--gray-500)] dark:text-[var(--gray-300)] opacity-60 font-poppins text-sm">
+        No contacts found
+      </div>
+    );
+  }
+
+  return (
+    <ul>
+      {userList.map((user, index) => (
+        <li key={user.id || user._id || index}>
+          <Contact
+            id={user.id || user._id}
+            userId={userId}
+            image={user.image}
+            display={user.friendName}
+            message={user.lastMessage}
+            curChat={curChat}
+            handleChatSelect={handleChatSelect}
+            newOutMessage={newOutMessage}
+            newIncomingMessage={newIncomingMessage}
+          />
+        </li>
       ))}
     </ul>
   );
