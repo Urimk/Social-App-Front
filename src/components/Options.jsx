@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { CiDark } from "react-icons/ci";
 import Switch from "@mui/material/Switch";
 import { styled } from "@mui/material/styles";
@@ -83,6 +83,17 @@ const Options = ({
   );
   const [customApi, setCustomApi] = useState(apiUrl);
 
+  useEffect(() => {
+    if (!isOptionsOpen) return;
+    const handleKeyDown = (e) => {
+      if (e.key === "Escape" && isTop) {
+        setIsOptionsOpen(false);
+      }
+    };
+    window.addEventListener("keydown", handleKeyDown);
+    return () => window.removeEventListener("keydown", handleKeyDown);
+  }, [isOptionsOpen, isTop, setIsOptionsOpen]);
+
   /**
    * Normalizes a URL by adding https if missing.
    * @param {string} url - The URL to normalize.
@@ -117,9 +128,11 @@ const Options = ({
    * @param {Event} e - The file input change event.
    */
   const handleImage = async (e) => {
-    const file = e.target.files[0];
+    const file = e.target.files?.[0];
 
-    if (file) {
+    if (!file) return;
+
+    try {
       const formData = new FormData();
       formData.append("image", file);
 
@@ -132,12 +145,36 @@ const Options = ({
         body: formData,
       });
 
-      if (response.ok) {
-        const data = await response.json();
-        setProfilePic(data.url);
+      if (!response.ok) {
+        const res = await response.json().catch(() => ({}));
+        throw new Error(res.message || "Failed to update profile picture");
       }
-      console.log("done");
+
+      const data = await response.json();
+      setProfilePic(data.url);
+      toast.success("Profile picture updated");
+    } catch (error) {
+      toast.error(error.message);
     }
+  };
+
+  /**
+   * Handles submitting new API URL address.
+   * @param {Event} e - Form submit event.
+   */
+  const handleSetApiUrl = (e) => {
+    e.preventDefault();
+    const formattedUrl = normalizeUrl(customApi.trim());
+    if (!isValidApiUrl(formattedUrl)) {
+      toast.error("Invalid API address");
+      return;
+    }
+
+    localStorage.setItem("apiAddress", formattedUrl);
+    setCustomApi(formattedUrl);
+    setApiUrl(formattedUrl);
+    reconnectSocket();
+    toast.success("API address updated");
   };
 
   return (
@@ -266,6 +303,7 @@ const Options = ({
         </div>
         {/* API address form */}
         <form
+          onSubmit={handleSetApiUrl}
           className={`flex text-center sm:text-start flex-col sm:flex-row
           justify-between 2xl:gap-[6px] sm:gap-lg-[6px] 2xl:mt-[25px]`}
         >
@@ -278,14 +316,7 @@ const Options = ({
           </h2>
           <input
             type="text"
-            onChange={(e) => {
-              const input = normalizeUrl(e.target.value);
-
-              if (!isValidApiUrl(input)) {
-                toast.error("Invalid address");
-              }
-              setCustomApi(input);
-            }}
+            onChange={(e) => setCustomApi(e.target.value)}
             name="display"
             value={customApi}
             className={`2xl:w-[270px] sm:w-lg-[270px] py-[4px] sm:py-[4px]
@@ -297,11 +328,6 @@ const Options = ({
           />
           <button
             type="submit"
-            onClick={() => {
-              localStorage.setItem("apiAddress", customApi);
-              setApiUrl(customApi);
-              reconnectSocket();
-            }}
             className={`sm:w-[50px] self-center sm:self-auto mt-[10px]
               sm:mt-[0] py-[4px] sm:py-[4px] sm:px-[12px] px-[40px] text-[16px]
               sm:text-[16px] font-poppins placeholder-[var(--gray-500)]

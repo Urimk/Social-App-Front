@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect, useRef } from "react";
 import toast from "react-hot-toast";
 import { useNavigate } from "react-router-dom";
 import { useSocket } from "../context/SocketProvider";
@@ -23,11 +23,30 @@ const ConfirmDelete = ({ isWindowOpen, setIsWindowOpen, setIsTop }) => {
     "http://localhost:5000";
   const [password, setPassword] = useState("");
   const [isLoading, setIsLoading] = useState(false);
+  const inputRef = useRef(null);
+
+  useEffect(() => {
+    if (!isWindowOpen) return;
+
+    inputRef.current?.focus();
+
+    const handleKeyDown = (e) => {
+      if (e.key === "Escape") {
+        setIsTop(true);
+        setIsWindowOpen(false);
+      }
+    };
+
+    window.addEventListener("keydown", handleKeyDown);
+    return () => window.removeEventListener("keydown", handleKeyDown);
+  }, [isWindowOpen, setIsTop, setIsWindowOpen]);
 
   /**
    * Handles the account deletion process.
    */
-  const handleDelete = async () => {
+  const handleDelete = async (e) => {
+    if (e) e.preventDefault();
+
     if (!password) {
       toast.error("Please enter your password");
       return;
@@ -49,7 +68,7 @@ const ConfirmDelete = ({ isWindowOpen, setIsWindowOpen, setIsTop }) => {
         clearAuthStorage();
         navigate("/login");
       } else {
-        const data = await res.json();
+        const data = await res.json().catch(() => ({}));
         toast.error(data.message || "Error deleting account");
       }
     } catch {
@@ -84,7 +103,7 @@ const ConfirmDelete = ({ isWindowOpen, setIsWindowOpen, setIsTop }) => {
           Are you sure you want to delete your account?
         </div>
 
-        <form>
+        <form onSubmit={handleDelete}>
           {/* Password input */}
           <div
             className="2xl:mt-[50px] sm:mt-lg-[50px] mt-[30px] flex flex-col sm:flex-row
@@ -98,6 +117,7 @@ const ConfirmDelete = ({ isWindowOpen, setIsWindowOpen, setIsTop }) => {
               password:
             </label>
             <input
+              ref={inputRef}
               name="password"
               id="password"
               type="password"
@@ -122,7 +142,10 @@ const ConfirmDelete = ({ isWindowOpen, setIsWindowOpen, setIsTop }) => {
           >
             <button
               type="button"
-              onClick={() => setIsWindowOpen(false)}
+              onClick={() => {
+                setIsTop(true);
+                setIsWindowOpen(false);
+              }}
               className="2xl:text-[20px] sm:text-lg-[20px] text-[16px] 2xl:mt-[50px]
                 sm:mt-lg-[50px] 2xl:px-[50px] sm:px-lg-[50px] 2xl:py-[12px]
                 sm:py-lg-[12px] py-[8px] font-poppins rounded-lg
@@ -133,13 +156,14 @@ const ConfirmDelete = ({ isWindowOpen, setIsWindowOpen, setIsTop }) => {
               Cancel
             </button>
             <button
-              onClick={handleDelete}
-              type="button"
+              type="submit"
+              disabled={isLoading}
               className={`flex-1 2xl:text-[20px] sm:text-lg-[20px] text-[16px] 2xl:mt-[50px]
                 sm:mt-lg-[50px] mt-[35px] 2xl:py-[12px] sm:py-lg-[12px] py-[8px]
                 font-poppins rounded-lg bg-white dark:bg-[var(--gray-600)]
                 text-[var(--red-500)] border-2 border-[var(--red-500)] font-semibold
-                shadow-md transition duration-300 ease-in-out cursor-pointer`}
+                shadow-md transition duration-300 ease-in-out
+                ${isLoading ? "opacity-50 cursor-not-allowed" : "cursor-pointer"}`}
             >
               {isLoading ? "Deleting..." : "Confirm Delete"}
             </button>
