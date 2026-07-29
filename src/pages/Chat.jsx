@@ -18,6 +18,7 @@ import { useNavigate } from "react-router-dom";
 import RequestsList from "../components/RequestsList";
 import { useSocket } from "../context/SocketProvider";
 import { clearAuthStorage } from "../utils/auth";
+import toast from "react-hot-toast";
 
 /**
  * Chat page component - Main chat interface.
@@ -30,7 +31,16 @@ const Chat = () => {
     import.meta.env.VITE_RENDER_API_URL ||
     "http://localhost:5000";
   const navigate = useNavigate();
-  const { incomingMessage: newIncomingMessage, disconnectSocket } = useSocket();
+  const {
+    incomingMessage: newIncomingMessage,
+    incomingRequest,
+    setIncomingRequest,
+    acceptedRequest,
+    setAcceptedRequest,
+    declinedRequest,
+    setDeclinedRequest,
+    disconnectSocket,
+  } = useSocket();
 
   const [userId, setUserId] = useState("");
   const [profilePic, setProfilePic] = useState("");
@@ -129,6 +139,52 @@ const Chat = () => {
 
     init();
   }, [fetchChats, fetchDefaultPic, fetchRequests]);
+
+  // Real-time socket effect: Handle incoming friend requests
+  useEffect(() => {
+    if (incomingRequest && incomingRequest.displayName) {
+      setFriendRequests((prev) => {
+        const prevArr = Array.isArray(prev) ? prev : [];
+        if (
+          prevArr.some(
+            (req) => req.displayName === incomingRequest.displayName,
+          )
+        ) {
+          return prevArr;
+        }
+        return [...prevArr, incomingRequest];
+      });
+      toast.success(`New friend request from ${incomingRequest.displayName}!`);
+      setIncomingRequest(null);
+    }
+  }, [incomingRequest, setIncomingRequest]);
+
+  // Real-time socket effect: Handle accepted friend requests
+  useEffect(() => {
+    if (acceptedRequest && acceptedRequest.id) {
+      setChats((prev) => {
+        const prevArr = Array.isArray(prev) ? prev : [];
+        if (prevArr.some((chat) => chat.id === acceptedRequest.id)) {
+          return prevArr;
+        }
+        return [...prevArr, acceptedRequest];
+      });
+      toast.success(
+        `${acceptedRequest.friendName} accepted your friend request!`,
+      );
+      setAcceptedRequest(null);
+    }
+  }, [acceptedRequest, setAcceptedRequest]);
+
+  // Real-time socket effect: Handle declined friend requests
+  useEffect(() => {
+    if (declinedRequest && declinedRequest.displayName) {
+      toast.error(
+        `${declinedRequest.displayName} declined your friend request.`,
+      );
+      setDeclinedRequest(null);
+    }
+  }, [declinedRequest, setDeclinedRequest]);
 
   const [curChat, setCurChat] = useState("");
   const [contactDisplay, setContactDisplay] = useState("");
