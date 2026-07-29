@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 
 import SimpleBar from "simplebar-react";
@@ -7,17 +7,21 @@ import toast from "react-hot-toast";
 
 import ProfilePic from "../assets/Default_pic.png";
 
+/**
+ * Register page component for user registration.
+ * Handles registration form submission and validation.
+ */
 const Register = () => {
   const API_URL =
     localStorage.getItem("apiAddress") ||
     import.meta.env.VITE_RENDER_API_URL ||
     "http://localhost:5000";
 
-  const NAME_CHAR_REGEX = /(\w|-|\.| )+/;
+  const NAME_CHAR_REGEX = /(\w|-|.| )+/;
   const DISPLAY_CHAR_REGEX = /(\w|-|\.)+/;
   const NAME_SPECIAL_REGEX = /[ ][ ]/;
   const LETTER_REGEX = /(?=.*[A-Z]+)(?=.*[a-z]+)(?=.*[0-9]+).+/;
-  const DISPLAY_SPECIAL_REGEX = /[-_\.][-_\.]/;
+  const DISPLAY_SPECIAL_REGEX = /[-_.][-_.]/;
 
   const MAX_NAME_LEN = 20;
   const MIN_DISPLAY_LEN = 3;
@@ -26,8 +30,6 @@ const Register = () => {
   const MAX_PASS_LEN = 25;
 
   const navigate = useNavigate();
-
-  const existingUsers = JSON.parse(localStorage.getItem("users")) || [];
 
   const [formData, setFormData] = useState({
     fName: "",
@@ -40,33 +42,12 @@ const Register = () => {
 
   const [errors, setErrors] = useState({});
   const [isLoading, setIsLoading] = useState(false);
-  const [isLoggedIn, setIsLoggedIn] = useState(true);
-  const [darkMode, setDarkMode] = useState(
-    localStorage.getItem("darkMode") || "false",
-  );
+  const [darkMode] = useState(localStorage.getItem("darkMode") || "false");
 
-  useEffect(() => {
-    const checkAuth = async () => {
-      try {
-        const token = localStorage.getItem("token");
-        if (token) throw new Error("Already Logged in");
-        await fetch("/auth/check", {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        });
-        setIsLoggedIn(false);
-        localStorage.removeItem("token");
-        localStorage.removeItem("user");
-      } catch (error) {
-        setIsLoggedIn(true);
-        navigate("/chat");
-      }
-    };
-
-    checkAuth();
-  }, []);
-
+  /**
+   * Checks if the form is filled and valid.
+   * @returns {boolean} True if all fields are filled and no errors.
+   */
   const isFilled = () => {
     if (
       formData.fName === "" ||
@@ -76,12 +57,16 @@ const Register = () => {
       formData.display === ""
     )
       return false;
-    Object.entries(errors).forEach(([_, messages]) => {
-      if (messages.length !== 0) return false;
+    const hasErrors = Object.entries(errors).forEach(([, messages]) => {
+      if (messages.length !== 0) return true;
     });
-    return true;
+    return !hasErrors;
   };
 
+  /**
+   * Validates all form fields and sets errors.
+   * @returns {boolean} True if no errors.
+   */
   const validateFields = () => {
     let newErrors = {};
     let noErrors = true;
@@ -101,6 +86,11 @@ const Register = () => {
     return noErrors;
   };
 
+  /**
+   * Validates a specific field.
+   * @param {string} field - The field name to validate.
+   * @returns {string[]} Array of error messages.
+   */
   const validateField = (field) => {
     let errors = [];
 
@@ -129,8 +119,8 @@ const Register = () => {
       }
 
       if (
-        !NAME_CHAR_REGEX.test(formData.lNameSp) ||
-        NAME_SPECIAL_REGEX.test(formData.lNameSp)
+        !NAME_CHAR_REGEX.test(formData.lName) ||
+        NAME_SPECIAL_REGEX.test(formData.lName)
       ) {
         errors.push("Invalid last name format");
       }
@@ -178,10 +168,18 @@ const Register = () => {
     }
   };
 
+  /**
+   * Handles input field changes.
+   * @param {Event} e - The input change event.
+   */
   const handleChange = (e) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
   };
 
+  /**
+   * Handles input field blur for validation.
+   * @param {Event} e - The blur event.
+   */
   const handleBlur = (e) => {
     if (e.target.name === "password" || e.target.name === "confirmPass") {
       setErrors({
@@ -197,6 +195,10 @@ const Register = () => {
     }
   };
 
+  /**
+   * Handles image file selection.
+   * @param {Event} e - The file input change event.
+   */
   const handleImage = (e) => {
     const file = e.target.files[0];
 
@@ -209,6 +211,11 @@ const Register = () => {
     }
   };
 
+  /**
+   * Fetches registration data from the API.
+   * @param {Object} data - The form data.
+   * @returns {Promise<Object>} The API response.
+   */
   const fetchData = async (data) => {
     let imageUrl = "";
 
@@ -244,6 +251,10 @@ const Register = () => {
     return res;
   };
 
+  /**
+   * Handles form submission for registration.
+   * @param {Event} e - The form submit event.
+   */
   const handleSubmit = async (e) => {
     e.preventDefault();
 
@@ -261,29 +272,55 @@ const Register = () => {
     }
   };
 
-  return isLoggedIn ? (
-    <></>
-  ) : (
+  return (
     <div className={darkMode === "true" ? "dark" : ""}>
-      <div className="min-h-screen bg-[url('/background1.png')] bg-no-repeat bg-cover bg-center">
-        <div className="absolute flex sm:block flex-col justify-center inset-0 bg-gradient-to-b dark:from-black/35 dark:to-black/55">
-          <div className="mx-auto max-w-9/10 rounded-2xl sm:rounded-t-none max-h-9/10 rounded-t-2xl sm:aspect-[0.63/1] min-w-[350px] sm:max-h-97/100 bg-white dark:bg-(--gray-900) overflow-hidden">
+      {/* Background with overlay */}
+      <div
+        className="min-h-screen bg-[url('/background1.png')] bg-no-repeat
+        bg-cover bg-center"
+      >
+        <div
+          className="absolute flex sm:block flex-col justify-center inset-0
+          bg-gradient-to-b dark:from-black/35 dark:to-black/55"
+        >
+          {/* Register card */}
+          <div
+            className="mx-auto max-w-9/10 rounded-2xl sm:rounded-t-none max-h-9/10
+            rounded-t-2xl sm:aspect-[0.63/1] min-w-[350px] sm:max-h-97/100
+            bg-white dark:bg-[var(--gray-900)] overflow-hidden"
+          >
             <SimpleBar style={{ maxHeight: "100%" }}>
-              <div className="flex flex-col pt-[20%] pb-[14%] sm:pb-[0%] px-[9%] sm:px-[12.4%] sm:pt-[20%] [container-type:inline-size]">
-                <h2 className="mx-auto sm:m-0 font-poppins font-bold text-[13cqw] sm:text-[10.5cqw] tracking-[1.3px] text-(--gray-500) dark:text-(--gray-300)">
+              <div
+                className="flex flex-col pt-[20%] pb-[14%] sm:pb-[0%] px-[9%]
+                sm:px-[12.4%] sm:pt-[20%] [container-type:inline-size]"
+              >
+                {/* Title */}
+                <h2
+                  className="mx-auto sm:m-0 font-poppins font-bold text-[13cqw]
+                  sm:text-[10.5cqw] tracking-[1.3px] text-[var(--gray-500)]
+                  dark:text-[var(--gray-300)]"
+                >
                   Register
                 </h2>
 
+                {/* Register form */}
                 <form
                   onSubmit={(e) => handleSubmit(e)}
                   className="mt-[8%] sm:mt-[6.6%] w-full"
                 >
+                  {/* Name inputs */}
                   <div className="flex flex-col sm:flex-row sm:gap-[2.5%]">
                     <input
                       type="text"
                       name="fName"
                       placeholder="First Name"
-                      className="w-full py-[4%] sm:py-[2%] px-[4%] text-[6cpw] sm:text-[4.1cqw] font-poppins placeholder-(--gray-500) dark:placeholder-(--gray-300) dark:text-white  bg-(--gray-100) dark:bg-(--gray-600) rounded-lg focus:outline-none focus:ring-2 focus:ring-[var(--blue-500)] focus:dark:ring-[var(--blue-400)] transition-all duration-200 ease-in-out"
+                      className="w-full py-[4%] sm:py-[2%] px-[4%] text-[6cpw]
+                        sm:text-[4.1cqw] font-poppins placeholder-[var(--gray-500)]
+                        dark:placeholder-[var(--gray-300)] dark:text-white
+                        bg-[var(--gray-100)] dark:bg-[var(--gray-600)] rounded-lg
+                        focus:outline-none focus:ring-2 focus:ring-[var(--blue-500)]
+                        focus:dark:ring-[var(--blue-400)] transition-all duration-200
+                        ease-in-out"
                       onChange={(e) => {
                         handleChange(e);
                       }}
@@ -296,7 +333,13 @@ const Register = () => {
                       type="text"
                       name="lName"
                       placeholder="Last Name"
-                      className="w-full py-[4%] sm:py-[2%] px-[4%] text-[6cpw] sm:text-[4.1cqw] mt-[5%] sm:mt-[0%] font-poppins placeholder-(--gray-500) dark:placeholder-(--gray-300) dark:text-white  bg-(--gray-100) dark:bg-(--gray-600) rounded-lg focus:outline-none focus:ring-2 focus:ring-[var(--blue-500)] focus:dark:ring-[var(--blue-400)] transition-all duration-200 ease-in-out"
+                      className="w-full py-[4%] sm:py-[2%] px-[4%] text-[6cpw]
+                        sm:text-[4.1cqw] mt-[5%] sm:mt-[0%] font-poppins
+                        placeholder-[var(--gray-500)] dark:placeholder-[var(--gray-300)]
+                        dark:text-white bg-[var(--gray-100)] dark:bg-[var(--gray-600)]
+                        rounded-lg focus:outline-none focus:ring-2
+                        focus:ring-[var(--blue-500)] focus:dark:ring-[var(--blue-400)]
+                        transition-all duration-200 ease-in-out"
                       onChange={(e) => {
                         handleChange(e);
                       }}
@@ -306,11 +349,18 @@ const Register = () => {
                     />
                   </div>
 
+                  {/* Password inputs */}
                   <input
                     type="password"
                     name="password"
                     placeholder="Password"
-                    className="w-full py-[4%] sm:py-[2%] px-[4%] text-[6cpw] sm:text-[4.1cqw] mt-[5%] sm:mt-[3.5%] font-poppins placeholder-(--gray-500) dark:placeholder-(--gray-300) dark:text-white bg-(--gray-100) dark:bg-(--gray-600) rounded-lg focus:outline-none focus:ring-2 focus:ring-[var(--blue-500)] focus:dark:ring-[var(--blue-400)] transition-all duration-200 ease-in-out"
+                    className="w-full py-[4%] sm:py-[2%] px-[4%] text-[6cpw]
+                      sm:text-[4.1cqw] mt-[5%] sm:mt-[3.5%] font-poppins
+                      placeholder-[var(--gray-500)] dark:placeholder-[var(--gray-300)]
+                      dark:text-white bg-[var(--gray-100)] dark:bg-[var(--gray-600)]
+                      rounded-lg focus:outline-none focus:ring-2
+                      focus:ring-[var(--blue-500)] focus:dark:ring-[var(--blue-400)]
+                      transition-all duration-200 ease-in-out"
                     onChange={(e) => {
                       handleChange(e);
                     }}
@@ -323,7 +373,13 @@ const Register = () => {
                     type="password"
                     name="confirmPass"
                     placeholder="Confirm Password"
-                    className="w-full py-[4%] sm:py-[2%] px-[4%] text-[6cpw] sm:text-[4.1cqw] mt-[5%] sm:mt-[3.5%] font-poppins placeholder-(--gray-500) dark:placeholder-(--gray-300) dark:text-white bg-(--gray-100) dark:bg-(--gray-600) rounded-lg focus:outline-none focus:ring-2 focus:ring-[var(--blue-500)] focus:dark:ring-[var(--blue-400)] transition-all duration-200 ease-in-out"
+                    className="w-full py-[4%] sm:py-[2%] px-[4%] text-[6cpw]
+                      sm:text-[4.1cqw] mt-[5%] sm:mt-[3.5%] font-poppins
+                      placeholder-[var(--gray-500)] dark:placeholder-[var(--gray-300)]
+                      dark:text-white bg-[var(--gray-100)] dark:bg-[var(--gray-600)]
+                      rounded-lg focus:outline-none focus:ring-2
+                      focus:ring-[var(--blue-500)] focus:dark:ring-[var(--blue-400)]
+                      transition-all duration-200 ease-in-out"
                     onChange={(e) => {
                       handleChange(e);
                     }}
@@ -332,38 +388,59 @@ const Register = () => {
                     }}
                   />
 
-                  <div className="mt-[4%]  font-poppins text-[var(--red-500)] text-[4.1cqw] sm:text-[3.3cqw]/3.75 font-poppins underline text-right tracking-wide sm:tracking-normal">
-                    {Object.entries(errors).map(([_, messages]) =>
+                  {/* Error messages */}
+                  <div
+                    className="mt-[4%] font-poppins text-[var(--red-500)]
+                    text-[4.1cqw] sm:text-[3.3cqw]/3.75 underline text-right
+                    tracking-wide sm:tracking-normal"
+                  >
+                    {Object.entries(errors).map(([, messages]) =>
                       messages.map((message) => (
                         <div key={message}>{message}</div>
                       )),
                     )}
                   </div>
 
+                  {/* Profile picture upload */}
                   <div className="flex">
                     <div className="flex flex-col">
-                      <div className="mt-[18%] text-[6cpw] sm:text-[4.1cqw] font-poppins text-(--gray-500) dark:text-(--gray-300)">
+                      <div
+                        className="mt-[18%] text-[6cpw] sm:text-[4.1cqw]
+                        font-poppins text-[var(--gray-500)] dark:text-[var(--gray-300)]"
+                      >
                         Upload a Profile Picture:
                       </div>
 
                       <label
                         htmlFor="image"
-                        className="text-[var(--blue-500)] dark:text-[var(--blue-400)] text-[4.1cqw]  mt-[0.4%] sm:mt-[0%] font-poppins underline cursor-pointer tracking-wide sm:tracking-normal"
+                        className="text-[var(--blue-500)] dark:text-[var(--blue-400)]
+                          text-[4.1cqw] mt-[0.4%] sm:mt-[0%] font-poppins underline
+                          cursor-pointer tracking-wide sm:tracking-normal"
                       >
                         Upload
                       </label>
 
-                      <div className="mt-[5%] w-[75%] text-(--gray-500) dark:text-(--gray-300) text-[6cpw] text-[0px] sm:text-[3.3cqw]/3.75 2xl: 2xl:leading-6">
+                      <div
+                        className="mt-[5%] w-[75%] text-[var(--gray-500)]
+                        dark:text-[var(--gray-300)] text-[6cpw] sm:text-[3.3cqw]/3.75
+                        2xl:leading-6"
+                      >
                         Size should be at least 192px by 192px. Use PNG or JPG
                         for best results.
                       </div>
                     </div>
 
-                    <div className="w-[40%] sm:w-[65%] h-[0%] aspect-square mt-[8%] mr-[4%] rounded-[50%] border-3 2xl:border-5 border-[var(--blue-500)]">
+                    <div
+                      className="w-[40%] sm:w-[65%] h-[0%] aspect-square mt-[8%]
+                      mr-[4%] rounded-[50%] border-3 2xl:border-5
+                      border-[var(--blue-500)]"
+                    >
                       <label className="cursor-pointer" htmlFor="image">
                         <img
                           src={formData.preview ? formData.preview : ProfilePic}
-                          className="w-[95%] h-[95%] mt-[2.5%] ml-[2.5%] rounded-full object-cover"
+                          alt="Profile preview"
+                          className="w-[95%] h-[95%] mt-[2.5%] ml-[2.5%] rounded-full
+                            object-cover"
                         />
                       </label>
 
@@ -394,14 +471,27 @@ const Register = () => {
 
                   <button
                     type="submit"
-                    className={`w-full py-[4%] sm:py-[2%] px-[4%] text-[6cpw] sm:text-[4.1cqw] mt-[12%] sm:mt-[10%] font-poppins bg-(--gray-100) dark:bg-(--gray-600) rounded-lg bg-[linear-gradient(100deg,var(--blue-500),var(--purple-800))] text-white dark:text-[var(--gray-300)] shadow-md transition duration-300 ease-in-out ${isFilled() && !isLoading ? "cursor-pointer" : "grayscale-70"}`}
+                    className={`w-full py-[4%] sm:py-[2%] px-[4%] text-[6cpw]
+                      sm:text-[4.1cqw] mt-[12%] sm:mt-[10%] font-poppins
+                      bg-[var(--gray-100)] dark:bg-[var(--gray-600)] rounded-lg
+                      bg-[linear-gradient(100deg,var(--blue-500),var(--purple-800))]
+                      text-white dark:text-[var(--gray-300)] shadow-md
+                      transition duration-300 ease-in-out
+                      ${isFilled() && !isLoading ? "cursor-pointer" : "grayscale-70"}`}
+                    disabled={!isFilled() || isLoading}
                   >
                     {isLoading ? `Signing up...` : "Sign up"}
                   </button>
                 </form>
 
-                <div className="flex flex-col sm:flex-row mt-[10%] justify-center items-center sm:gap-[3%]">
-                  <p className="text-[6cpw] sm:text-[4.1cqw] font-poppins text-(--gray-500) dark:text-(--gray-300)">
+                <div
+                  className="flex flex-col sm:flex-row mt-[10%] justify-center
+                  items-center sm:gap-[3%]"
+                >
+                  <p
+                    className="text-[6cpw] sm:text-[4.1cqw] font-poppins
+                    text-[var(--gray-500)] dark:text-[var(--gray-300)]"
+                  >
                     Already Registered?
                   </p>
 
@@ -409,13 +499,18 @@ const Register = () => {
                     onClick={() => {
                       navigate("/login");
                     }}
-                    className="text-[var(--blue-500)] dark:text-[var(--blue-400)] text-[6cpw] sm:text-[4.1cqw] font-poppins underline cursor-pointer mt-[3%] sm:mt-[0%]"
+                    className="text-[var(--blue-500)] dark:text-[var(--blue-400)]
+                      text-[6cpw] sm:text-[4.1cqw] font-poppins underline
+                      cursor-pointer mt-[3%] sm:mt-[0%]"
                   >
                     Click here to login
                   </a>
                 </div>
 
-                <div className="sm:mt-[10%] sm:mb-[10%] border-[var(--gray-100)] sm:border-2 h-px w-[60%] mx-auto rounded-md"></div>
+                <div
+                  className="sm:mt-[10%] sm:mb-[10%] border-[var(--gray-100)]
+                  sm:border-2 h-px w-[60%] mx-auto rounded-md"
+                ></div>
               </div>
             </SimpleBar>
           </div>

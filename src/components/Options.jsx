@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { CiDark } from "react-icons/ci";
 import Switch from "@mui/material/Switch";
 import { styled } from "@mui/material/styles";
@@ -6,6 +6,7 @@ import DefaultPic from "../assets/Default_pic.png";
 
 import toast from "react-hot-toast";
 import ConfirmDelete from "./ConfirmDelete";
+import { useSocket } from "../context/SocketProvider";
 
 const MaterialUISwitch = styled(Switch)(({ theme }) => ({
   width: 62,
@@ -73,7 +74,7 @@ const Options = ({
   profilePic,
   setProfilePic,
 }) => {
-  const [isLoading, setIsLoading] = useState(false);
+  const { reconnectSocket } = useSocket();
   const [isConfirmOpen, setIsConfirmOpen] = useState(false);
   const [apiUrl, setApiUrl] = useState(
     localStorage.getItem("apiAddress") ||
@@ -82,6 +83,22 @@ const Options = ({
   );
   const [customApi, setCustomApi] = useState(apiUrl);
 
+  useEffect(() => {
+    if (!isOptionsOpen) return;
+    const handleKeyDown = (e) => {
+      if (e.key === "Escape" && isTop) {
+        setIsOptionsOpen(false);
+      }
+    };
+    window.addEventListener("keydown", handleKeyDown);
+    return () => window.removeEventListener("keydown", handleKeyDown);
+  }, [isOptionsOpen, isTop, setIsOptionsOpen]);
+
+  /**
+   * Normalizes a URL by adding https if missing.
+   * @param {string} url - The URL to normalize.
+   * @returns {string} The normalized URL.
+   */
   function normalizeUrl(url) {
     if (!url.startsWith("http://") && !url.startsWith("https://")) {
       return "https://" + url;
@@ -89,6 +106,11 @@ const Options = ({
     return url;
   }
 
+  /**
+   * Validates if the URL is a valid API URL.
+   * @param {string} url - The URL to validate.
+   * @returns {boolean} True if valid.
+   */
   function isValidApiUrl(url) {
     try {
       const parsed = new URL(url);
@@ -101,10 +123,16 @@ const Options = ({
     }
   }
 
+  /**
+   * Handles profile image upload.
+   * @param {Event} e - The file input change event.
+   */
   const handleImage = async (e) => {
-    const file = e.target.files[0];
+    const file = e.target.files?.[0];
 
-    if (file) {
+    if (!file) return;
+
+    try {
       const formData = new FormData();
       formData.append("image", file);
 
@@ -117,12 +145,36 @@ const Options = ({
         body: formData,
       });
 
-      if (response.ok) {
-        const data = await response.json();
-        setProfilePic(data.url);
+      if (!response.ok) {
+        const res = await response.json().catch(() => ({}));
+        throw new Error(res.message || "Failed to update profile picture");
       }
-      console.log("done");
+
+      const data = await response.json();
+      setProfilePic(data.url);
+      toast.success("Profile picture updated");
+    } catch (error) {
+      toast.error(error.message);
     }
+  };
+
+  /**
+   * Handles submitting new API URL address.
+   * @param {Event} e - Form submit event.
+   */
+  const handleSetApiUrl = (e) => {
+    e.preventDefault();
+    const formattedUrl = normalizeUrl(customApi.trim());
+    if (!isValidApiUrl(formattedUrl)) {
+      toast.error("Invalid API address");
+      return;
+    }
+
+    localStorage.setItem("apiAddress", formattedUrl);
+    setCustomApi(formattedUrl);
+    setApiUrl(formattedUrl);
+    reconnectSocket();
+    toast.success("API address updated");
   };
 
   return (
@@ -132,29 +184,56 @@ const Options = ({
           setIsOptionsOpen(false);
         }
       }}
-      className={`${isOptionsOpen ? "" : "hidden"} fixed inset-0  w-screen h-screen bg-[var(--gray-100)]/60 dark:bg-[var(--gray-500)]/60 backdrop-blur-xs flex items-center justify-center`}
+      className={`${isOptionsOpen ? "" : "hidden"} fixed inset-0 w-screen
+        h-screen bg-[var(--gray-100)]/60 dark:bg-[var(--gray-500)]/60
+        backdrop-blur-xs flex items-center justify-center`}
     >
+      {/* Options modal */}
       <div
         onClick={(e) => e.stopPropagation()}
-        className="2xl:w-[587px] sm:w-lg-[587px] w-[70vw]  bg-white dark:bg-[var(--gray-800)] rounded-4xl drop-shadow-[2px_3px_15px_var(--blue-900)] 2xl:py-[51px] sm:py-lg-[51px] py-[45px] 2xl:px-[48px] sm:px-lg-[48px] px-[35px] flex flex-col"
+        className={`2xl:w-[587px] sm:w-lg-[587px] w-[70vw] bg-white
+          dark:bg-[var(--gray-800)] rounded-4xl
+          drop-shadow-[2px_3px_15px_var(--blue-900)] 2xl:py-[51px]
+          sm:py-lg-[51px] py-[45px] 2xl:px-[48px] sm:px-lg-[48px] px-[35px]
+          flex flex-col`}
       >
+        {/* Close button */}
         <div
-          onClick={(e) => setIsOptionsOpen(false)}
-          className="absolute 2xl:right-[55px] sm:right-[48px] right-[25px] top-[25px] sm:top-auto 2xl:text-[20px] sm:text-lg-[20px] text-[22px] font-semibold text-[var(--gray-500)] dark:text-[var(--gray-300)] cursor-pointer"
+          onClick={() => setIsOptionsOpen(false)}
+          className={`absolute 2xl:right-[55px] sm:right-[48px] right-[25px]
+            top-[25px] sm:top-auto 2xl:text-[20px] sm:text-lg-[20px] text-[22px]
+            font-semibold text-[var(--gray-500)] dark:text-[var(--gray-300)]
+            cursor-pointer`}
         >
           X
         </div>
-        <div className="2xl:text-[22px] self-center sm:self-auto sm:text-lg-[22px] text-[20px] font-poppins text-[var(--gray-500)] dark:text-[var(--gray-300)] font-semibold">
+        {/* Title */}
+        <div
+          className={`2xl:text-[22px] self-center sm:self-auto
+          sm:text-lg-[22px] text-[20px] font-poppins text-[var(--gray-500)]
+          dark:text-[var(--gray-300)] font-semibold`}
+        >
           Options
         </div>
-        <div className="flex justify-between 2xl:pt-[20px] sm:pt-lg-[20px] pt-[10px] items-center">
-          <label className="2xl:text-[20px] sm:text-lg-[20px] text-[16px] font-poppins text-[var(--gray-500)] dark:text-[var(--gray-300)] tracking-[0.2px]">
-            <CiDark className="inline 2xl:mr-[10px] sm:mr-lg-[10px] sm:text-[22px] 2xl:text-[25px]" />
+        {/* Dark mode toggle */}
+        <div
+          className={`flex justify-between 2xl:pt-[20px] sm:pt-lg-[20px]
+          pt-[10px] items-center`}
+        >
+          <label
+            className={`2xl:text-[20px] sm:text-lg-[20px] text-[16px]
+            font-poppins text-[var(--gray-500)] dark:text-[var(--gray-300)]
+            tracking-[0.2px]`}
+          >
+            <CiDark
+              className="inline 2xl:mr-[10px] sm:mr-lg-[10px]
+              sm:text-[22px] 2xl:text-[25px]"
+            />
             Dark Mode
           </label>
           <MaterialUISwitch
             checked={darkMode === "true" ? true : false}
-            onChange={(event, checked) => {
+            onChange={() => {
               setDarkMode(darkMode === "true" ? "false" : "true");
               localStorage.setItem(
                 "darkMode",
@@ -164,31 +243,51 @@ const Options = ({
             className="scale-80 sm:scale-100"
           />
         </div>
-        <div className="2xl:mt-[30px] sm:mt-lg-[30px] mt-[10px] mb-[10px] sm:mb-[0] flex justify-between sm:justify-normal">
-          <div className="items-center flex sm:block  ">
+        {/* Profile picture section */}
+        <div
+          className={`2xl:mt-[30px] sm:mt-lg-[30px] mt-[10px] mb-[10px]
+          sm:mb-[0] flex justify-between sm:justify-normal`}
+        >
+          <div className="items-center flex sm:block">
             <label
               htmlFor="image"
-              className="hidden sm:flex text-[var(--blue-500)] dark:text-[var(--blue-400)] sm:text-lg-[20px]  font-poppins underline cursor-pointer tracking-wide sm:tracking-normal"
+              className={`hidden sm:flex text-[var(--blue-500)]
+                dark:text-[var(--blue-400)] sm:text-lg-[20px] font-poppins
+                underline cursor-pointer tracking-wide sm:tracking-normal`}
             >
               Change profile picture
             </label>
             <label
               htmlFor="image"
-              className="flex sm:hidden text-[var(--blue-500)] dark:text-[var(--blue-400)] sm:text-lg-[20px]   font-poppins underline cursor-pointer tracking-wide sm:tracking-normal"
+              className={`flex sm:hidden text-[var(--blue-500)]
+                dark:text-[var(--blue-400)] sm:text-lg-[20px] font-poppins
+                underline cursor-pointer tracking-wide sm:tracking-normal`}
             >
               Profile picture
             </label>
-            <div className="hidden sm:block 2xl:w-[60%] sm:w-[70%] 2xl:mt-[10px] sm:mt-lg-[10px] text-(--gray-500) dark:text-(--gray-300) text-[16px] sm:text-lg-[16px] text-[12px]  2xl:leading-6">
+            <div
+              className={`hidden sm:block 2xl:w-[60%] sm:w-[70%]
+              2xl:mt-[10px] sm:mt-lg-[10px] text-[var(--gray-500)]
+              dark:text-[var(--gray-300)] text-[16px] sm:text-lg-[16px]
+              text-[12px] 2xl:leading-6`}
+            >
               Size should be at least 192px by 192px. Use PNG or JPG for best
               results.
             </div>
           </div>
 
-          <div className="2xl:w-[160px] sm:w-[160px] w-[80px] h-[0%] aspect-square sm:mb-[10px] 2xl:mb-[0]  rounded-[50%] sm:mr-lg-[90px] mr-[0] ml-[20px] sm:ml-[0] border-3 2xl:border-5 border-[var(--blue-500)]">
+          <div
+            className={`2xl:w-[160px] sm:w-[160px] w-[80px] h-[0%]
+            aspect-square sm:mb-[10px] 2xl:mb-[0] rounded-[50%]
+            sm:mr-lg-[90px] mr-[0] ml-[20px] sm:ml-[0] border-3 2xl:border-5
+            border-[var(--blue-500)]`}
+          >
             <label className="cursor-pointer" htmlFor="image">
               <img
                 src={profilePic || DefaultPic}
-                className="w-[95%] h-[95%] mt-[2.5%] ml-[2.5%]  rounded-full object-cover"
+                alt="Profile picture"
+                className="w-[95%] h-[95%] mt-[2.5%] ml-[2.5%] rounded-full
+                  object-cover"
               />
             </label>
 
@@ -196,50 +295,64 @@ const Options = ({
               type="file"
               name="image"
               id="image"
-              alt="Upload"
               accept="image/*"
               onChange={(e) => handleImage(e)}
               className="hidden"
             />
           </div>
         </div>
-        <form className="flex text-center sm:text-start  flex-col sm:flex-row justify-between 2xl:gap-[6px] sm:gap-lg-[6px] 2xl:mt-[25px]">
-          <h2 className="2xl:text-[20px] sm:text-lg-[20px] text-[16px] font-poppins text-[var(--gray-500)] dark:text-[var(--gray-300)] tracking-[0.2px]">
+        {/* API address form */}
+        <form
+          onSubmit={handleSetApiUrl}
+          className={`flex text-center sm:text-start flex-col sm:flex-row
+          justify-between 2xl:gap-[6px] sm:gap-lg-[6px] 2xl:mt-[25px]`}
+        >
+          <h2
+            className={`2xl:text-[20px] sm:text-lg-[20px] text-[16px]
+            font-poppins text-[var(--gray-500)] dark:text-[var(--gray-300)]
+            tracking-[0.2px]`}
+          >
             API address:
           </h2>
           <input
             type="text"
-            onChange={(e) => {
-              const input = normalizeUrl(e.target.value);
-
-              if (!isValidApiUrl(input)) {
-                toast.error("Invalid address");
-              }
-              setCustomApi(input);
-            }}
+            onChange={(e) => setCustomApi(e.target.value)}
             name="display"
             value={customApi}
-            className="2xl:w-[270px] sm:w-lg-[270px]  py-[4px] sm:py-[4px] px-[12px] text-[16px] sm:text-[16px] font-poppins placeholder-(--gray-500) dark:placeholder-(--gray-300) dark:text-white bg-(--gray-100) dark:bg-(--gray-600) rounded-lg focus:outline-none focus:ring-2 focus:ring-[var(--blue-500)] focus:dark:ring-[var(--blue-400)]"
+            className={`2xl:w-[270px] sm:w-lg-[270px] py-[4px] sm:py-[4px]
+              px-[12px] text-[16px] sm:text-[16px] font-poppins
+              placeholder-[var(--gray-500)] dark:placeholder-[var(--gray-300)]
+              dark:text-white bg-[var(--gray-100)] dark:bg-[var(--gray-600)]
+              rounded-lg focus:outline-none focus:ring-2
+              focus:ring-[var(--blue-500)] focus:dark:ring-[var(--blue-400)]`}
           />
           <button
             type="submit"
-            onClick={(e) => {
-              localStorage.setItem("apiAddress", customApi);
-              setApiUrl(customApi);
-            }}
-            className={`sm:w-[50px] self-center sm:self-auto mt-[10px] sm:mt-[0] py-[4px] sm:py-[4px] sm:px-[12px] px-[40px] text-[16px] sm:text-[16px] font-poppins placeholder-(--gray-500) dark:placeholder-(--gray-300) bg-(--gray-100) dark:bg-(--gray-600) rounded-lg bg-[linear-gradient(100deg,var(--blue-500),var(--purple-500))]
-                    dark:bg-[linear-gradient(100deg,var(--blue-700),var(--purple-800))] text-white dark:text-[var(--gray-300)] shadow-md  transition duration-300 ease-in-out cursor-pointer`}
+            className={`sm:w-[50px] self-center sm:self-auto mt-[10px]
+              sm:mt-[0] py-[4px] sm:py-[4px] sm:px-[12px] px-[40px] text-[16px]
+              sm:text-[16px] font-poppins placeholder-[var(--gray-500)]
+              dark:placeholder-[var(--gray-300)] bg-[var(--gray-100)]
+              dark:bg-[var(--gray-600)] rounded-lg
+              bg-[linear-gradient(100deg,var(--blue-500),var(--purple-500))]
+              dark:bg-[linear-gradient(100deg,var(--blue-700),var(--purple-800))]
+              text-white dark:text-[var(--gray-300)] shadow-md
+              transition duration-300 ease-in-out cursor-pointer`}
           >
             Set
           </button>
         </form>
+        {/* Delete account button */}
         <button
           type="button"
-          onClick={(e) => {
+          onClick={() => {
             setIsConfirmOpen(true);
             setIsTop(false);
           }}
-          className={`w-[180px] self-center py-[4px] sm:py-[4px]  px-[12px] text-[16px] sm:text-[16px] 2xl:mt-[40px] sm:mt-[40px] mt-[30px] font-poppins bg-white dark:bg-(--gray-600) text-[var(--red-500)] border-2 border-[var(--red-500)] font-semibold  shadow-md  cursor-pointer rounded-lg`}
+          className={`w-[180px] self-center py-[4px] sm:py-[4px] px-[12px]
+            text-[16px] sm:text-[16px] 2xl:mt-[40px] sm:mt-[40px] mt-[30px]
+            font-poppins bg-white dark:bg-[var(--gray-600)]
+            text-[var(--red-500)] border-2 border-[var(--red-500)]
+            font-semibold shadow-md cursor-pointer rounded-lg`}
         >
           Delete Account
         </button>

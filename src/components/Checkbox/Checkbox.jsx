@@ -1,11 +1,11 @@
-import { useState, useId } from "react";
+import { useId } from "react";
 import "./Checkbox.css";
 
-export default function Checkbox({}) {
+export default function Checkbox() {
   const id = useId();
   return (
     <div
-      className="checkbox-wrapper text-[var(--blue-500)] dark:text-[var(--blue-400)] [--bg-color:theme(colors.white)] dark:[--bg-color:var(--gray-900)] flex content-center scale-125 sm:scale-none ml-[5%] mt-[2%] sm:ml-[0%] sm:mt-[0%]"
+      className="checkbox-wrapper text-[var(--blue-500)] dark:text-[var(--blue-400)] [--bg-color:theme(colors.white)] dark:[--bg-color:var(--gray-900)] flex content-center scale-125 sm:scale-100 ml-[5%] mt-[2%] sm:ml-[0%] sm:mt-[0%]"
       style={{
         "--size": "var(--checkbox-size)",
       }}
