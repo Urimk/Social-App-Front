@@ -57,9 +57,9 @@ const Register = () => {
       formData.display === ""
     )
       return false;
-    const hasErrors = Object.entries(errors).forEach(([, messages]) => {
-      if (messages.length !== 0) return true;
-    });
+    const hasErrors = Object.values(errors).some(
+      (messages) => Array.isArray(messages) && messages.length > 0,
+    );
     return !hasErrors;
   };
 

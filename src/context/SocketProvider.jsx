@@ -16,6 +16,9 @@ const SocketContext = createContext(null);
 
 export const SocketProvider = ({ children }) => {
   const [incomingMessage, setIncomingMessage] = useState({});
+  const [incomingRequest, setIncomingRequest] = useState(null);
+  const [acceptedRequest, setAcceptedRequest] = useState(null);
+  const [declinedRequest, setDeclinedRequest] = useState(null);
   const [isConnected, setIsConnected] = useState(false);
   const socketRef = useRef(null);
 
@@ -25,16 +28,25 @@ export const SocketProvider = ({ children }) => {
     socket.off("connect");
     socket.off("disconnect");
     socket.off("message_received");
+    socket.off("request_received");
+    socket.off("request_accepted");
+    socket.off("request_declined");
   }, []);
 
   const attachListeners = useCallback((socket) => {
     const handleConnect = () => setIsConnected(true);
     const handleDisconnect = () => setIsConnected(false);
     const handleMessageReceived = (data) => setIncomingMessage(data);
+    const handleRequestReceived = (data) => setIncomingRequest(data);
+    const handleRequestAccepted = (data) => setAcceptedRequest(data);
+    const handleRequestDeclined = (data) => setDeclinedRequest(data);
 
     socket.on("connect", handleConnect);
     socket.on("disconnect", handleDisconnect);
     socket.on("message_received", handleMessageReceived);
+    socket.on("request_received", handleRequestReceived);
+    socket.on("request_accepted", handleRequestAccepted);
+    socket.on("request_declined", handleRequestDeclined);
 
     if (socket.connected) {
       setIsConnected(true);
@@ -77,6 +89,12 @@ export const SocketProvider = ({ children }) => {
       value={{
         incomingMessage,
         setIncomingMessage,
+        incomingRequest,
+        setIncomingRequest,
+        acceptedRequest,
+        setAcceptedRequest,
+        declinedRequest,
+        setDeclinedRequest,
         isConnected,
         disconnectSocket: disconnect,
         reconnectSocket: reconnect,
