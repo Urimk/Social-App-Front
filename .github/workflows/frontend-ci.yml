@@ -22,7 +22,7 @@ jobs:
         run: npm ci
 
       - name: Run Vitest Suite
-        run: npm run test
+        run: npm test
 
       - name: Verify Production Build
         run: npm run build
